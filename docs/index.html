@@ -36,10 +36,12 @@
   .tam { width: 100%; }
   .kucuk { padding: 8px 12px; font-size: 15px; }
   .satir { display: flex; gap: 8px; align-items: center; }
+  .satir > div { min-width: 0; }
+  input[type=date] { min-width: 0; }
   .ortala { text-align: center; }
   .ipucu { font-size: 14px; color: var(--gri); }
   .gizli { display: none !important; }
-  .sekme { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; position: fixed; bottom: 0; left: 0; right: 0;
+  .sekme { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; position: fixed; bottom: 0; left: 0; right: 0;
            background: #fff; padding: 6px 6px 8px; box-shadow: 0 -2px 8px rgba(0,0,0,.1); z-index: 5; }
   .sekme button { background: transparent; padding: 6px 2px; font-size: 12px; color: var(--gri); display: flex;
                   flex-direction: column; align-items: center; gap: 2px; border-radius: 10px; }
@@ -85,6 +87,14 @@
   .rozet.onay { background: #d8f0df; color: var(--yesil); } .rozet.red { background: #fbdcd8; color: var(--kirmizi); }
   .foto img { max-width: 100%; border-radius: 10px; margin-top: 8px; }
   .isaret { width: 56px; flex: 0 0 56px; background: var(--lac2); color: var(--lac); font-size: 20px; padding: 12px 0; font-weight: 700; }
+  .tkayit { display: flex; gap: 10px; align-items: flex-start; padding: 10px 2px; border-bottom: 1px solid #eef1f4; font-size: 15px; }
+  .tkayit input { width: 22px; height: 22px; flex: 0 0 22px; margin-top: 2px; }
+  .tkayit small { color: var(--gri); }
+  .baglanti { color: var(--lac); font-weight: 600; text-decoration: underline; }
+  .paylas { margin-top: 10px; }
+  .pBtnlar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+  .pBtn { display: block; text-align: center; padding: 13px 4px; border-radius: 12px; font-weight: 700; color: #fff !important; text-decoration: none; font-size: 15px; }
+  .pBtn.wa { background: #1fa855; } .pBtn.sms { background: var(--lac); } .pBtn.ep { background: var(--turuncuM); }
   .surum { text-align: center; font-size: 12px; color: var(--gri); margin-top: 16px; }
 </style>
 </head>
@@ -110,6 +120,15 @@
         <label>Telefon</label><input id="gTel" type="tel" inputmode="tel" placeholder="5xx xxx xx xx">
         <label>Şifre</label><input id="gPin" type="password" inputmode="numeric" maxlength="6" placeholder="4–6 rakam">
         <p></p><button class="btn" onclick="girisYap()">Giriş yap</button>
+        <p class="ortala"><a href="#" class="baglanti" onclick="girisSekme('sifre'); return false">Şifremi unuttum</a></p>
+      </div>
+      <div id="formSifre" class="gizli">
+        <p class="ipucu">Yeni şifrenizi belirleyin. İstek ofise gider; ofis onaylayınca yeni şifrenizle giriş yaparsınız.</p>
+        <label>Telefon</label><input id="sTel" type="tel" inputmode="tel" placeholder="5xx xxx xx xx">
+        <label>Yeni şifre (4–6 rakam)</label><input id="sPin" type="password" inputmode="numeric" maxlength="6">
+        <label>Yeni şifre tekrar</label><input id="sPin2" type="password" inputmode="numeric" maxlength="6">
+        <p></p><button class="btn" onclick="sifreTalep()">Şifre değiştirme isteği gönder</button>
+        <p class="ortala"><a href="#" class="baglanti" onclick="girisSekme('giris'); return false">‹ Girişe dön</a></p>
       </div>
       <div id="formKayit" class="gizli">
         <label>Ad Soyad</label><input id="kAd" autocomplete="name">
@@ -231,6 +250,49 @@
       </div>
     </div>
 
+    <!-- TUTANAK -->
+    <div id="pTutanak" class="panel gizli">
+      <div class="kart">
+        <h2>Tutanak hazırla</h2>
+        <p class="ipucu" style="margin-top:0">Üstte seçili iş için, seçtiğiniz günlerde gönderdiğiniz kayıtlardan tutanak hazırlanır. Masraflar tutanağa girmez.</p>
+        <div class="satir">
+          <div style="flex:1"><label>Başlama</label><input id="tBas" type="date"></div>
+          <div style="flex:1"><label>Bitiş</label><input id="tBit" type="date"></div>
+        </div>
+        <p></p><button class="btn2 tam" onclick="tutanakGetir()">Kayıtları getir</button>
+      </div>
+      <div id="tutanakForm" class="gizli">
+        <div class="kart">
+          <h2>Tutanağa girecekler <span id="tKayitSay" class="ipucu"></span></h2>
+          <div id="tKayitlar"></div>
+        </div>
+        <div class="kart" id="tAlanlar">
+          <label style="margin-top:0">Tutanak türü</label>
+          <div id="tTur" class="secenek iki">
+            <button data-t="KK" class="sec" onclick="this.classList.toggle('sec')">Katodik koruma</button>
+            <button data-t="TOP" onclick="this.classList.toggle('sec')">Topraklama</button>
+          </div>
+          <label class="satir" style="color:var(--yazi);margin-top:12px">
+            <input id="tOlcum" type="checkbox" style="width:22px;height:22px;flex:0 0 22px" onchange="tToplamCiz()"> Ölçüm değerlerini tutanağa yaz
+          </label>
+          <label>Firma</label><input id="tFirma" placeholder="ör. OMC İnşaat">
+          <div class="satir"><div style="flex:1"><label>İlçe</label><input id="tIlce"></div><div style="flex:1"><label>Mahalle</label><input id="tMahalle"></div></div>
+          <div class="satir"><div style="flex:1"><label>Cadde</label><input id="tCadde"></div><div style="flex:1"><label>Sokak</label><input id="tSokak"></div></div>
+          <div class="satir"><div style="flex:1"><label>Bina no</label><input id="tBina"></div><div style="flex:1"><label>GPS kodu</label><input id="tGps"></div></div>
+          <label>Adres açıklaması</label><textarea id="tAdres" style="min-height:56px" placeholder="ör. Hopa / Ardeşen DGBH"></textarea>
+          <label>Yapılan işin başlığı</label><input id="tBaslik" placeholder="ör. Fındıklı Hat Vanası Take/Off">
+          <label>Açıklama / kroki notu</label><textarea id="tAciklama" style="min-height:70px"></textarea>
+          <p></p><button class="btn" onclick="gonderKilit(tutanakOlustur)">Tutanağı oluştur</button>
+        </div>
+      </div>
+      <div id="tSonuc" class="kart gizli"></div>
+      <div class="kart">
+        <div class="satir" style="justify-content:space-between"><h2>Tutanaklarım</h2>
+          <button class="btn2 kucuk" onclick="tutanaklarim()">Yenile</button></div>
+        <div id="tListe" class="ipucu">—</div>
+      </div>
+    </div>
+
     <!-- KAYITLARIM -->
     <div id="pKayit" class="panel gizli">
       <div class="kart">
@@ -239,7 +301,7 @@
         <div id="kayitListe" class="ipucu">Yükleniyor…</div>
       </div>
     </div>
-    <div class="surum">HM Saha v1.2 · kayıtlar HM Ana Dosya'ya yazılır, ofis onaylar</div>
+    <div class="surum">HM Saha v1.6 · kayıtlar HM Ana Dosya'ya yazılır, ofis onaylar</div>
   </section>
 </main>
 
@@ -248,6 +310,7 @@
   <button data-p="pPuantaj" onclick="panel('pPuantaj')"><span>👷</span>Puantaj</button>
   <button data-p="pMasraf" onclick="panel('pMasraf')"><span>🧾</span>Masraf</button>
   <button data-p="pOlcum" onclick="panel('pOlcum')"><span>📏</span>Ölçüm</button>
+  <button data-p="pTutanak" onclick="panel('pTutanak'); tutanakAc()"><span>📝</span>Tutanak</button>
   <button data-p="pKayit" onclick="panel('pKayit'); kayitlarim()"><span>📋</span>Kayıtlar</button>
 </nav>
 <div id="toast" class="toast" onclick="this.style.display='none'"></div>
@@ -357,13 +420,17 @@ function girisEkrani(m) {
   goster('ekGiris', true); $('girisMesaj').textContent = m || ''; $('kimlik').textContent = 'Katodik koruma saha kaydı';
 }
 function girisSekme(s) {
-  goster('formGiris', s === 'giris'); goster('formKayit', s === 'kayit');
+  goster('formGiris', s === 'giris'); goster('formKayit', s === 'kayit'); goster('formSifre', s === 'sifre');
+  if (s === 'sifre' && !$('sTel').value) $('sTel').value = $('gTel').value;
   $('tabGiris').classList.toggle('sec', s === 'giris'); $('tabKayit').classList.toggle('sec', s === 'kayit');
 }
 async function girisYap() {
   try {
     const r = await sunucu('appGiris', $('gTel').value, $('gPin').value);
-    if (r.durum === 'bekliyor') { $('girisMesaj').textContent = r.ad + ', kaydınız ofis onayı bekliyor. Onaydan sonra tekrar deneyin.'; return; }
+    if (r.durum === 'bekliyor') {
+      $('girisMesaj').textContent = r.ad + (r.sifre ? ', şifre değişikliğiniz' : ', kaydınız') + ' ofis onayı bekliyor. Onaydan sonra tekrar deneyin.';
+      return;
+    }
     TOKEN = r.token; bellek.set('token', TOKEN); $('gPin').value = ''; basla();
   } catch (e) { mesaj(hataMetni(e), 5000); }
 }
@@ -373,6 +440,14 @@ async function kayitOl() {
     await sunucu('appKayitOl', { ad: $('kAd').value, tel: $('kTel').value, gorev: $('kGorev').value, pin: $('kPin').value });
     $('gTel').value = $('kTel').value; girisSekme('giris');
     $('girisMesaj').textContent = 'Kaydınız alındı. Ofis onaylayınca buradan telefon ve şifrenizle giriş yapın.';
+  } catch (e) { mesaj(hataMetni(e), 6000); }
+}
+async function sifreTalep() {
+  if ($('sPin').value !== $('sPin2').value) { mesaj('Şifreler aynı değil.'); return; }
+  try {
+    const r = await sunucu('appSifreUnuttum', $('sTel').value, $('sPin').value);
+    $('gTel').value = $('sTel').value; $('sPin').value = ''; $('sPin2').value = ''; girisSekme('giris');
+    $('girisMesaj').textContent = r.ad + ', isteğiniz ofise iletildi. Ofis onaylayınca yeni şifrenizle giriş yapın.';
   } catch (e) { mesaj(hataMetni(e), 6000); }
 }
 async function cikis(sessiz) {
@@ -699,6 +774,151 @@ async function kuyruguIsle() {
   }
 }
 window.addEventListener('online', () => kuyruguIsle());
+
+/* ===================== tutanak ===================== */
+let T_KAYIT = [];
+/* --- tutanağı WhatsApp / SMS / e-posta ile gönderme (kişiye tutanağın linki gider) --- */
+let PAYLAS = [];
+function tutanakMesaji(t) {
+  return ('HM Korozyon - Saha Tutanağı № ' + t.no + '\n' +
+    (t.firma ? 'Firma: ' + t.firma + '\n' : '') + (t.is ? 'İş: ' + t.is + '\n' : '') + (t.tarih ? 'Tarih: ' + t.tarih + '\n' : '') +
+    (t.duzenleyen ? 'Düzenleyen: ' + t.duzenleyen + '\n' : '') + 'Tutanağı görmek / yazdırmak için: ' + t.link).replace(/[\u2012-\u2015]/g, '-');
+}
+function telUluslar(v) {
+  let d = String(v || '').replace(/\D/g, '');
+  if (d.indexOf('00') === 0) d = d.slice(2);
+  if (d.length === 11 && d.charAt(0) === '0') d = '9' + d;          // 0532… → 90532…
+  else if (d.length === 10 && d.charAt(0) === '5') d = '90' + d;    // 532…  → 90532…
+  return d;
+}
+function paylasLinkleri(t, kime) {
+  const m = encodeURIComponent(tutanakMesaji(t));
+  const k = String(kime || '').trim();
+  const ep = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(k) ? k : '';
+  const tel = ep ? '' : telUluslar(k);
+  return {
+    wa: 'https://wa.me/' + tel + '?text=' + m,
+    sms: 'sms:' + (tel ? '+' + tel : '') + '?body=' + m,
+    ep: 'mailto:' + ep + '?subject=' + encodeURIComponent('HM Korozyon Saha Tutanağı № ' + t.no) + '&body=' + m
+  };
+}
+function paylasBlok(t, acik) {
+  const i = PAYLAS.push(t) - 1, l = paylasLinkleri(t, '');
+  return '<div class="paylas" id="pay' + i + '"' + (acik ? '' : ' style="display:none"') + '>' +
+    '<input type="text" autocomplete="off" placeholder="Kime: telefon veya e-posta (boş bırakılabilir)" oninput="paylasGuncelle(' + i + ', this.value)">' +
+    '<div class="pBtnlar"><a id="pwa' + i + '" class="pBtn wa" href="' + esc(l.wa) + '" target="_blank" rel="noopener">WhatsApp</a>' +
+    '<a id="psms' + i + '" class="pBtn sms" href="' + esc(l.sms) + '">SMS</a>' +
+    '<a id="pep' + i + '" class="pBtn ep" href="' + esc(l.ep) + '">E-posta</a></div>' +
+    (navigator.share ? '<button class="btn2 kucuk tam" style="margin-top:6px" onclick="paylasDiger(' + i + ')">Diğer uygulamalar…</button>' : '') +
+    '<div class="ipucu" style="margin-top:6px">Kişiye tutanağın linki gider; açıp görebilir, yazdırabilir. Kime boşsa rehberden seçersiniz.</div></div>';
+}
+function paylasGuncelle(i, kime) {
+  const l = paylasLinkleri(PAYLAS[i], kime);
+  $('pwa' + i).href = l.wa; $('psms' + i).href = l.sms; $('pep' + i).href = l.ep;
+}
+function paylasAc(i) { const el = $('pay' + i); if (el) el.style.display = el.style.display === 'none' ? '' : 'none'; }
+function paylasDiger(i) { const t = PAYLAS[i]; navigator.share({ title: 'Tutanak ' + t.no, text: tutanakMesaji(t) }).catch(() => {}); }
+function trTarih(v) { const p = String(v || '').split('-'); return p.length === 3 ? p[2] + '.' + p[1] + '.' + p[0] : String(v || ''); }
+function tutanakAc() {
+  if (!$('tBas').value) $('tBas').value = $('tarih').value || bugunStr();
+  if (!$('tBit').value) $('tBit').value = $('tBas').value;
+  tutanaklarim();
+}
+function tKayitMetni(k) {
+  const m = k.miktar === '' ? '' : String(k.miktar).replace('.', ',') + ' ' + birimAdi(k.birim);
+  if (k.tur === 'Günlük puantaj') return 'Puantaj: ' + k.kod + (k.kisiler ? ' · ' + k.kisiler : '');
+  if (k.tur === 'Ölçüm') return 'Ölçüm: ' + k.kod + ' ' + String(k.miktar).replace('.', ',') + ' ' + k.birim + (k.konum ? ' · ' + k.konum : '');
+  return (k.tur === 'Yapılan iş' ? 'İş: ' : '') + k.tanim + ' – ' + m;
+}
+async function tutanakGetir() {
+  const isNo = $('isSec').value;
+  if (!isNo) { mesaj('Önce üstten işi seçin.'); $('isSec').focus(); return; }
+  goster('tSonuc', false); goster('tutanakForm', true); goster('tAlanlar', false);
+  $('tKayitlar').innerHTML = '<p class="ipucu">Yükleniyor…</p>'; $('tKayitSay').textContent = '';
+  try {
+    const r = await sunucu('appTutanakOnizle', TOKEN, { isNo, bas: $('tBas').value, bit: $('tBit').value });
+    T_KAYIT = r.kayitlar || [];
+    if (!T_KAYIT.length) {
+      $('tKayitlar').innerHTML = '<p class="ipucu">Bu tarihlerde bu işe ait kaydınız yok. Önce Malzeme / Puantaj / Ölçüm kaydı gönderin, sonra tekrar deneyin.</p>';
+      return;
+    }
+    $('tKayitSay').textContent = '(' + T_KAYIT.length + ')';
+    $('tKayitlar').innerHTML = T_KAYIT.map((k, i) =>
+      '<label class="tkayit"><input type="checkbox" checked data-i="' + i + '" onchange="tToplamCiz()"><span>' + esc(tKayitMetni(k)) +
+      '<br><small>' + esc(k.tarih) + (k.tutanak ? ' · zaten tutanakta: ' + esc(k.tutanak) : '') + '</small></span></label>').join('') +
+      '<p class="ipucu">Tutanağa girmeyecek kaydın işaretini kaldırın.</p><div id="tToplam"></div>';
+    tToplamCiz();
+    const doldur = (id, v) => { if (!$(id).value && v) $(id).value = v; };
+    doldur('tFirma', r.oneri.firma); doldur('tAdres', r.oneri.adres); doldur('tGps', r.oneri.gps);
+    goster('tAlanlar', true);
+  } catch (e) {
+    if (/^YETKI/.test(hataMetni(e))) { cikis(true); return; }
+    $('tKayitlar').innerHTML = '<p class="ipucu">Kayıtlar alınamadı: ' + esc(hataMetni(e)) + '</p>';
+  }
+}
+/** Önizleme: tutanakta görünecek hâli – aynı cins kalemler toplanmış */
+function tToplamCiz() {
+  const secili = Array.from(document.querySelectorAll('#tKayitlar input[type=checkbox]')).filter(c => c.checked).map(c => T_KAYIT[Number(c.dataset.i)]);
+  const m = {}, sira = [];
+  secili.filter(k => k.tur === 'Malzeme kullanımı' || k.tur === 'Yapılan iş').forEach(k => {
+    const a = k.tur + '|' + (k.kod || k.tanim) + '|' + k.birim;
+    if (!m[a]) { m[a] = { tur: k.tur, tanim: k.tanim, birim: k.birim, miktar: 0 }; sira.push(a); }
+    m[a].miktar = Math.round((m[a].miktar + (Number(k.miktar) || 0)) * 1000) / 1000;
+  });
+  const olc = secili.filter(k => k.tur === 'Ölçüm').length;
+  $('tToplam').innerHTML = sira.length || olc ? '<h2 style="margin-top:14px">Tutanakta görünecek (toplanmış)</h2>' +
+    sira.map(a => { const x = m[a]; return '<div class="tkayit" style="justify-content:space-between"><span>' + esc((x.tur === 'Yapılan iş' ? 'İş: ' : '') + x.tanim) +
+      '</span><b style="white-space:nowrap">' + esc(String(x.miktar).replace('.', ',') + ' ' + birimAdi(x.birim)) + '</b></div>'; }).join('') +
+    (olc ? '<p class="ipucu">' + ($('tOlcum').checked ? '+ ' + olc + ' ölçüm değeri tutanağa ayrı ayrı yazılacak (ölçümler toplanmaz).'
+                                                    : olc + ' ölçüm değeri var; tutanağa yazılmayacak (yazmak için "Ölçüm değerlerini tutanağa yaz"ı işaretleyin).') + '</p>' : '') : '';
+}
+async function tutanakOlustur() {
+  const isNo = $('isSec').value;
+  if (!isNo) { mesaj('Önce üstten işi seçin.'); return; }
+  const kutular = Array.from(document.querySelectorAll('#tKayitlar input[type=checkbox]'));
+  const haric = kutular.filter(c => !c.checked).map(c => T_KAYIT[Number(c.dataset.i)].id);
+  if (!kutular.length || haric.length === kutular.length) { mesaj('En az bir kayıt seçin.'); return; }
+  const turler = Array.from(document.querySelectorAll('#tTur button.sec')).map(b => b.dataset.t);
+  if (!turler.length) { mesaj('Tutanak türünü seçin.'); return; }
+  if (!$('tFirma').value.trim()) { mesaj('Firma adını yazın.'); $('tFirma').focus(); return; }
+  if (!(await onayIste('Tutanak oluşturulsun mu? Numara verilir ve ofise düşer.'))) return;
+  try {
+    const r = await sunucu('appTutanakOlustur', TOKEN, {
+      isNo, bas: $('tBas').value, bit: $('tBit').value, turler, haric, olcumYaz: $('tOlcum').checked,
+      firma: $('tFirma').value, ilce: $('tIlce').value, mahalle: $('tMahalle').value, cadde: $('tCadde').value,
+      sokak: $('tSokak').value, binaNo: $('tBina').value, gps: $('tGps').value, adres: $('tAdres').value,
+      baslik: $('tBaslik').value, aciklama: $('tAciklama').value });
+    $('tSonuc').innerHTML = '<h2>✓ Tutanak № ' + esc(r.no) + ' hazır</h2><p>Doğrulama kodu: <b>' + esc(r.kod) + '</b> · ' + esc(r.kayit) +
+      ' kayıt. Ofis Tutanaklar sayfasından görür ve yazdırır.</p>' +
+      (r.link ? '<a class="btn" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box;padding:14px;border-radius:12px" href="' + esc(r.link) + '" target="_blank" rel="noopener">Tutanağı aç</a>' +
+        '<h2 style="margin-top:16px">Tutanağı gönder</h2>' +
+        paylasBlok({ no: r.no, link: r.link, firma: $('tFirma').value.trim(), duzenleyen: VERI.ad,
+          is: isNo + (($('isSec').selectedOptions[0] || {}).textContent ? ' - ' + $('isSec').selectedOptions[0].textContent.split(' · ').slice(1).join(' · ') : ''),
+          tarih: $('tBas').value === $('tBit').value ? trTarih($('tBas').value) : trTarih($('tBas').value) + ' - ' + trTarih($('tBit').value) }, true) : '');
+    goster('tSonuc', true); goster('tutanakForm', false);
+    ['tBaslik', 'tAciklama'].forEach(id => { $(id).value = ''; });
+    tutanaklarim();
+    window.scrollTo(0, 0);
+  } catch (e) {
+    if (/^YETKI/.test(hataMetni(e))) { cikis(true); return; }
+    mesaj('Tutanak oluşturulamadı: ' + hataMetni(e), 6000);
+  }
+}
+async function tutanaklarim() {
+  try {
+    const r = await sunucu('appTutanaklarim', TOKEN);
+    $('tListe').innerHTML = r.length ? r.map(t => '<div class="kayit"><div class="satir" style="justify-content:space-between"><b>№ ' + esc(t.no) + '</b>' +
+      '<span class="rozet' + (t.durum === 'İMZALANDI' ? ' onay' : (t.durum === 'İPTAL' ? ' red' : '')) + '">' + esc(t.durum || 'BEKLİYOR') + '</span></div>' +
+      '<div>' + esc(t.tarih + ' · ' + t.is + (t.firma ? ' · ' + t.firma : '')) + '</div>' +
+      (t.link ? '<div class="satir" style="justify-content:space-between;margin-top:6px"><a class="baglanti" href="' + esc(t.link) + '" target="_blank" rel="noopener">Tutanağı aç</a>' +
+        '<button class="btn2 kucuk" onclick="paylasAc(' + PAYLAS.length + ')">📤 Gönder</button></div>' +
+        paylasBlok({ no: t.no, link: t.link, firma: t.firma, is: t.is, tarih: String(t.tarih || '').split(' ')[0], duzenleyen: VERI.ad }, false) : '') + '</div>').join('')
+      : 'Henüz tutanağınız yok.';
+  } catch (e) {
+    if (/^YETKI/.test(hataMetni(e))) { cikis(true); return; }
+    $('tListe').textContent = 'Liste alınamadı: ' + hataMetni(e);
+  }
+}
 
 /* ===================== kayıtlarım ===================== */
 async function kayitlarim() {
