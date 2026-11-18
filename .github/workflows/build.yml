@@ -1,0 +1,71 @@
+name: HM Saha APK
+
+# android/ klasörü değişince ya da Actions sekmesinden "Run workflow" ile çalışır.
+# Ekran (docs/) değişiklikleri için APK gerekmez: uygulama sayfayı her açılışta GitHub Pages'ten alır.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - '.github/workflows/apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Sayfanın yedek kopyasını uygulamaya koy (internetsiz ilk açılış için)
+        run: |
+          mkdir -p android/app/src/main/assets/www
+          cp -r docs/. android/app/src/main/assets/www/
+
+      - name: İmza anahtarı
+        env:
+          KS_B64: ${{ secrets.HM_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/hm-saha.jks"
+            echo "HM_KEYSTORE_FILE=$RUNNER_TEMP/hm-saha.jks" >> "$GITHUB_ENV"
+          else
+            echo "::warning::HM_KEYSTORE_B64 gizli değeri yok – APK geçici anahtarla imzalanıyor (sonraki sürüm üzerine kurulamaz)."
+          fi
+
+      - name: APK derle
+        env:
+          HM_KEYSTORE_PASS: ${{ secrets.HM_KEYSTORE_PASS }}
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          export HM_URL="https://${OWNER}.github.io/${{ github.event.repository.name }}/"
+          echo "Uygulama adresi: $HM_URL"
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+          cp app/build/outputs/apk/release/app-release.apk ../HM-Saha.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HM-Saha-apk
+          path: HM-Saha.apk
+
+      - name: Sürüm olarak yayınla
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.${{ github.run_number }}
+          name: HM Saha 1.${{ github.run_number }}
+          body: |
+            Telefona yükleme: bu sayfadaki **HM-Saha.apk** dosyasını telefonda açın → "Bilinmeyen kaynaklara izin ver" → Yükle.
+            Her zaman son sürümün linki: https://github.com/${{ github.repository }}/releases/latest/download/HM-Saha.apk
+          files: HM-Saha.apk
+          make_latest: true
