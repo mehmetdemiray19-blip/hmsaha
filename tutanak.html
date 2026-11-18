@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>HM Korozyon – Saha Tutanağı</title>
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<script src="ayar.js"></script>
+<style>
+  @page { size: A4; margin: 8mm; }
+  :root { --c: #1d2b78; --k: #c62828; --z: #f4f6fb; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e6e9f0; font-family: Arial, Helvetica, sans-serif; color: #111; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .arac { position: sticky; top: 0; z-index: 10; background: #002595; color: #fff; padding: 10px 12px; display: flex; gap: 8px;
+          justify-content: center; align-items: center; flex-wrap: wrap; border-bottom: 3px solid #F26722; font-size: 14px; }
+  .arac button { font: inherit; font-weight: 700; border: 0; border-radius: 8px; padding: 9px 14px; cursor: pointer; background: #fff; color: #002595; }
+  .arac button.ana { background: #F26722; color: #fff; }
+  .durum { text-align: center; padding: 40px 16px; font-size: 17px; color: #333; }
+
+  .sayfa { position: relative; width: 194mm; min-height: 279mm; margin: 14px auto; background: #fff; padding: 0;
+           box-shadow: 0 2px 10px rgba(0,0,0,.18); overflow: hidden; }
+  .filigran { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 0; }
+  .filigran img { width: 150mm; opacity: .09; }
+  .iptal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 3; }
+  .iptal span { font-size: 64pt; font-weight: 900; color: rgba(198,40,40,.35); border: 6px solid rgba(198,40,40,.35); padding: 4mm 10mm; transform: rotate(-28deg); }
+  .icerik { position: relative; z-index: 1; padding: 0; }
+
+  table { border-collapse: collapse; width: 100%; }
+  td, th { border: 1.2px solid var(--c); padding: 1.6mm 2mm; vertical-align: top; font-size: 9.5pt; }
+  .et { color: var(--c); font-weight: 700; font-size: 8.5pt; white-space: nowrap; background: rgba(29,43,120,.04); }
+  .bant { text-align: center; font-weight: 700; color: var(--c); font-size: 9.5pt; letter-spacing: .3px; padding: 1.4mm; background: rgba(29,43,120,.06); }
+
+  .ust td { vertical-align: middle; }
+  .logo { width: 62mm; padding: 1.5mm 2mm; }
+  .logo-kutu { display: flex; align-items: center; gap: 2.5mm; border: 1px solid var(--c); padding: 1mm 1.5mm; }
+  .logo-kutu img { width: 15mm; height: 15mm; }
+  .logo-kutu .ad { font-weight: 900; color: var(--c); letter-spacing: 1.6px; font-size: 10.5pt; border-bottom: 1px solid var(--c); padding-bottom: .6mm; margin-bottom: .6mm; }
+  .logo-kutu .alt { font-size: 5.8pt; color: var(--c); font-weight: 700; line-height: 1.35; }
+  .tur { font-weight: 700; color: var(--c); font-size: 10.5pt; white-space: nowrap; }
+  .kutu { display: inline-block; width: 6.5mm; height: 6.5mm; border: 1.4px solid var(--c); vertical-align: middle; margin-left: 2mm;
+          text-align: center; line-height: 6mm; font-weight: 900; font-size: 11pt; color: #111; }
+  .tarih { font-size: 9pt; color: var(--c); }
+  .tarih b { color: #111; font-weight: 700; }
+  .no { text-align: right; white-space: nowrap; }
+  .no span { color: var(--c); font-weight: 700; font-size: 12pt; }
+  .no b { color: var(--k); font-size: 14pt; letter-spacing: 1px; font-family: "Courier New", monospace; }
+
+  .yapilan { height: 60mm; padding: 2.5mm 3mm; }
+  .yapilan h3 { margin: 0 0 2mm; text-align: center; font-size: 11pt; text-decoration: underline; }
+  .liste { columns: 2; column-gap: 8mm; font-size: 9.5pt; margin: 0; padding-left: 4mm; }
+  .liste li { break-inside: avoid; margin-bottom: 1mm; }
+  .bilgi { font-size: 9pt; margin-top: 2.5mm; line-height: 1.45; }
+  .bilgi b { color: var(--c); }
+  .olcum { height: 20mm; }
+  .olcum .ad { color: var(--c); font-weight: 700; font-size: 9pt; }
+  .malz th { color: var(--c); font-size: 8.5pt; text-align: left; background: rgba(29,43,120,.06); }
+  .malz td { height: 6.6mm; padding: 1mm 2mm; }
+  .malz .s { text-align: right; white-space: nowrap; }
+  .imza td { height: 30mm; width: 33.33%; position: relative; }
+  .imza .bas { text-align: center; font-weight: 700; color: var(--c); font-size: 9pt; height: auto; padding: 1.4mm; background: rgba(29,43,120,.06); }
+  .imza .kim { position: absolute; left: 2mm; right: 2mm; bottom: 2mm; font-size: 8pt; color: #555; line-height: 1.6; }
+  .imza .kim b { color: #111; }
+  .dip { font-size: 7.2pt; color: #444; padding: 2mm 1mm 0; line-height: 1.45; }
+  .dip b { color: var(--c); }
+
+  @media screen and (max-width: 760px) {
+    .sayfa { transform-origin: top left; }
+  }
+  @media print {
+    body { background: #fff; }
+    .arac, .durum { display: none !important; }
+    .sayfa { margin: 0; box-shadow: none; width: auto; min-height: 0; overflow: visible; }
+    .filigran, .iptal { position: fixed; }
+  }
+</style>
+</head>
+<body>
+<div class="arac" id="arac">
+  <span id="aracBaslik">HM Korozyon – Saha Tutanağı</span>
+  <button class="ana" id="yazdirBtn" onclick="window.print()">🖨 Yazdır / PDF</button>
+  <button onclick="linkKopyala()">🔗 Linki kopyala</button>
+</div>
+<div id="durum" class="durum">Tutanak yükleniyor…</div>
+<div id="sayfa" class="sayfa" style="display:none"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+function esc(s) { return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function sayi(v) { return (v === '' || v === null || v === undefined) ? '' : String(Math.round(Number(v) * 1000) / 1000).replace('.', ','); }
+const BIRIM = { m: 'm', kg: 'kg', adet: 'ad.', ad: 'ad.', set: 'set', km: 'km', 'm²': 'm²', lt: 'lt', mV: 'mV', V: 'V' };
+function birim(b) { const k = String(b || '').trim(); return BIRIM[k] || k; }
+function linkKopyala() {
+  const u = location.href;
+  if (navigator.clipboard) navigator.clipboard.writeText(u).then(() => alertYok('Link kopyalandı.'), () => alertYok(u)); else alertYok(u);
+}
+function alertYok(t) { $('aracBaslik').textContent = t; setTimeout(() => { $('aracBaslik').textContent = 'HM Korozyon – Saha Tutanağı'; }, 2500); }
+if (/HMSahaApp/.test(navigator.userAgent)) {   // telefon uygulamasında yazdırma yok: ofiste bilgisayardan yazdırılır
+  $('yazdirBtn').style.display = 'none';
+}
+
+async function yukle() {
+  const q = new URLSearchParams(location.search);
+  const no = q.get('no'), k = q.get('k');
+  if (!no || !k) { $('durum').textContent = 'Tutanak numarası veya doğrulama kodu eksik.'; return; }
+  try {
+    const r = await fetch(window.HM_API, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: 'appTutanakVeri', args: [no, k] }) });
+    const j = JSON.parse(await r.text());
+    if (!j.ok) throw new Error(j.hata || 'Sunucu hatası');
+    ciz(j.sonuc);
+  } catch (e) {
+    $('durum').textContent = 'Tutanak açılamadı: ' + ((e && e.message) || e);
+  }
+}
+
+function ciz(t) {
+  document.title = 'Tutanak ' + t.no + ' – ' + (t.firma || t.isNo);
+  const unvan = String(t.unvan || '');
+  const ad = unvan.indexOf('HM KOROZYON') === 0 ? 'HM KOROZYON' : unvan.split(' ').slice(0, 2).join(' ');
+  const kalan = unvan.slice(ad.length).trim();
+  const i = kalan.indexOf(' SANAYİ');
+  const alt1 = i > 0 ? kalan.slice(0, i) : kalan, alt2 = i > 0 ? kalan.slice(i + 1) : '';
+  const isaret = k => '<span class="kutu">' + ((t.turler || []).indexOf(k) > -1 ? '✕' : '') + '</span>';
+
+  // yapılan iş
+  const isler = (t.isler || []).map(x => '<li>' + esc(x.tanim) + ' – <b>' + esc(sayi(x.miktar)) + ' ' + esc(birim(x.birim)) + '</b></li>');
+  const aksama = (t.aksama || []).map(a => esc(a.tarih + ': ' + a.durum + (a.neden ? ' – ' + a.neden : '') + (a.saat !== '' ? ' (' + sayi(a.saat) + ' saat kayıp)' : '')));
+  const olcum = (t.olcum || []).map(o => '<span class="ad">' + esc(o.nokta || '—') + ':</span> ' + esc(o.kod) + ' <b>' + esc(sayi(o.deger)) + ' ' + esc(o.birim) + '</b>' +
+    (o.ref ? ' (' + esc(o.ref) + ')' : '') + (t.bas !== t.bit ? ' · ' + esc(o.tarih) : ''));
+
+  // malzeme tablosu: önce sol sütun, sonra sağ (kâğıt tutanaktaki gibi)
+  const m = t.malzeme || [];
+  const satir = Math.max(10, Math.ceil(m.length / 2));
+  let malz = '';
+  for (let r = 0; r < satir; r++) {
+    const a = m[r], b = m[r + satir];
+    const h = x => x ? '<td>' + esc(x.tanim) + '</td><td>' + esc(birim(x.birim)) + '</td><td class="s">' + esc(sayi(x.miktar)) + '</td>' : '<td></td><td></td><td></td>';
+    malz += '<tr>' + h(a) + h(b) + '</tr>';
+  }
+
+  $('sayfa').innerHTML =
+    '<div class="filigran"><img src="filigran.png" alt=""></div>' +
+    (t.durum === 'İPTAL' ? '<div class="iptal"><span>İPTAL</span></div>' : '') +
+    '<div class="icerik">' +
+    '<table class="ust"><tr>' +
+      '<td class="logo" rowspan="2"><div class="logo-kutu"><img src="icons/icon-192.png" alt="HM"><div><div class="ad">' + esc(ad) + '</div>' +
+        '<div class="alt">' + esc(alt1) + '<br>' + esc(alt2) + '</div></div></div></td>' +
+      '<td class="tur">KATODİK KORUMA TUTANAĞI ' + isaret('KK') + '</td>' +
+      '<td class="tur">TOPRAKLAMA TUTANAĞI ' + isaret('TOP') + '</td></tr>' +
+      '<tr><td class="tarih" colspan="1">Başlama Tarihi: <b>' + esc(t.bas) + '</b> &nbsp; Bitiş Tarihi: <b>' + esc(t.bit) + '</b></td>' +
+      '<td class="no"><span>№</span> <b>' + esc(t.no) + '</b></td></tr></table>' +
+
+    '<table><colgroup><col style="width:19mm"><col style="width:52mm"><col style="width:20mm"><col style="width:41mm"><col></colgroup>' +
+      '<tr><td class="et">FİRMA</td><td colspan="3"><b>' + esc(t.firma) + '</b></td><td class="et">ADRES AÇIKLAMASI</td></tr>' +
+      '<tr><td class="et">İLÇE</td><td>' + esc(t.ilce) + '</td><td class="et">SOKAK</td><td>' + esc(t.sokak) + '</td>' +
+        '<td rowspan="3">' + esc(t.adres) + '</td></tr>' +
+      '<tr><td class="et">MAHALLE</td><td>' + esc(t.mahalle) + '</td><td class="et">BİNA NO</td><td>' + esc(t.binaNo) + '</td></tr>' +
+      '<tr><td class="et">CADDE</td><td>' + esc(t.cadde) + '</td><td class="et">GPS KODU</td><td>' + esc(t.gps) + '</td></tr>' +
+      '<tr><td colspan="5" class="bant">YAPILAN İŞ / KROKİ</td></tr>' +
+      '<tr><td colspan="5" class="yapilan">' +
+        (t.baslik ? '<h3>' + esc(t.baslik) + '</h3>' : '') +
+        (isler.length ? '<ul class="liste">' + isler.join('') + '</ul>' : '') +
+        '<div class="bilgi"><b>İş:</b> ' + esc(t.isNo + (t.isAd ? ' – ' + t.isAd : '')) +
+          '<br><b>Çalışan personel:</b> ' + esc((t.personel || []).join(', ')) + ' &nbsp; <b>Çalışma günü:</b> ' + esc(t.gun) +
+          (aksama.length ? '<br><b>Aksama:</b> ' + aksama.join(' · ') : '') +
+          (t.aciklama ? '<br><b>Açıklama:</b> ' + esc(t.aciklama).replace(/\n/g, '<br>') : '') + '</div>' +
+      '</td></tr>' +
+      '<tr><td colspan="5" class="olcum"><span class="et" style="background:none">ÖLÇÜM DEĞERLERİ:</span>' +
+        (olcum.length ? '<div class="bilgi">' + olcum.join('<br>') + '</div>' : '') + '</td></tr>' +
+    '</table>' +
+
+    '<table class="malz"><colgroup><col style="width:34%"><col style="width:7%"><col style="width:9%"><col style="width:34%"><col style="width:7%"><col style="width:9%"></colgroup>' +
+      '<tr><th>MALZEME CİNSİ</th><th>BİRİM</th><th>MİKTAR</th><th>MALZEME CİNSİ</th><th>BİRİM</th><th>MİKTAR</th></tr>' + malz + '</table>' +
+
+    '<table class="imza"><tr><td class="bas">HM KOROZYON LTD. ŞTİ. ADINA</td><td class="bas">KONTROL</td><td class="bas">ONAY</td></tr>' +
+      '<tr><td><div class="kim">Ad Soyad: <b>' + esc(t.duzenleyen && t.duzenleyen.ad) + '</b><br>Görev: ' + esc(t.duzenleyen && t.duzenleyen.gorev) + '<br>İmza:</div></td>' +
+      '<td><div class="kim">Ad Soyad:<br>Görev / Firma:<br>İmza / Kaşe:</div></td>' +
+      '<td><div class="kim">Ad Soyad:<br>Görev / Firma:<br>İmza / Kaşe:</div></td></tr></table>' +
+
+    '<div class="dip">Düzenleyen: <b>' + esc(t.duzenleyen && t.duzenleyen.ad) + '</b>' + (t.duzenleyen && t.duzenleyen.gorev ? ' (' + esc(t.duzenleyen.gorev) + ')' : '') +
+      ' – ' + esc(unvan) + '<br>Bu tutanak HM Saha sisteminden ' + esc(t.olusturma) + ' tarihinde üretilmiştir; asıl kayıt HM Korozyon\'dadır. ' +
+      'Doğrulama kodu: <b>' + esc(t.kod) + '</b> · Tutanak № ' + esc(t.no) + ' · ' + esc(t.kayitSay) + ' saha kaydı.</div>' +
+    '</div>';
+  $('durum').style.display = 'none';
+  $('sayfa').style.display = 'block';
+  olcekle();
+}
+function olcekle() {   // telefonda A4 sayfayı ekrana sığdır
+  const s = $('sayfa'), w = window.innerWidth - 16, a4 = s.offsetWidth;
+  if (window.matchMedia('print').matches) return;
+  if (a4 > w) { const k = w / a4; s.style.transform = 'scale(' + k + ')'; s.style.marginLeft = '8px'; s.style.marginBottom = (-(1 - k) * s.offsetHeight) + 'px'; }
+  else { s.style.transform = ''; s.style.marginLeft = ''; s.style.marginBottom = ''; }
+}
+window.addEventListener('resize', olcekle);
+window.addEventListener('beforeprint', () => { const s = $('sayfa'); s.style.transform = ''; s.style.marginLeft = ''; s.style.marginBottom = ''; });
+window.addEventListener('afterprint', olcekle);
+yukle();
+</script>
+</body>
+</html>

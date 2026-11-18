@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>HM Saha</title>
+<meta name="theme-color" content="#002595">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script src="ayar.js"></script>
+<style>
+  :root { --lac:#002595; --turuncuM:#F26722; --lac2:#e5e9f6; --sari:#ffd34d; --zemin:#f2f4f7; --yazi:#1b1f24; --gri:#5f6b7a;
+          --yesil:#1f8a4c; --kirmizi:#c0392b; --turuncu:#b45309; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--zemin);
+         color: var(--yazi); font-size: 17px; }
+  header { background: var(--lac); color: #fff; padding: 8px 14px; display: flex; align-items: center;
+           justify-content: space-between; position: sticky; top: 0; z-index: 5; border-bottom: 3px solid var(--turuncuM); }
+  .marka { display: flex; align-items: center; gap: 10px; }
+  .marka img { width: 40px; height: 40px; border-radius: 8px; }
+  .yukle { background: var(--turuncuM); color: #fff; font-weight: 700; width: 100%; margin-bottom: 10px; }
+  header b { font-size: 19px; letter-spacing: .3px; }
+  header small { opacity: .85; font-size: 14px; }
+  main { padding: 12px; max-width: 560px; margin: 0 auto; padding-bottom: 96px; }
+  .kart { background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  h2 { font-size: 19px; margin: 2px 0 8px; }
+  label { display: block; font-size: 14px; color: var(--gri); margin: 12px 0 4px; }
+  input, select, textarea { width: 100%; font-size: 17px; padding: 12px; border: 1px solid #cfd5dd; border-radius: 10px;
+                            background: #fff; color: var(--yazi); font-family: inherit; }
+  textarea { min-height: 88px; resize: vertical; }
+  button { font-family: inherit; font-size: 17px; border: 0; border-radius: 12px; padding: 14px; cursor: pointer; }
+  .btn { background: var(--lac); color: #fff; width: 100%; font-weight: 600; }
+  .btn2 { background: var(--lac2); color: var(--lac); font-weight: 600; }
+  .tam { width: 100%; }
+  .kucuk { padding: 8px 12px; font-size: 15px; }
+  .satir { display: flex; gap: 8px; align-items: center; }
+  .satir > div { min-width: 0; }
+  input[type=date] { min-width: 0; }
+  .ortala { text-align: center; }
+  .ipucu { font-size: 14px; color: var(--gri); }
+  .gizli { display: none !important; }
+  .sekme { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; position: fixed; bottom: 0; left: 0; right: 0;
+           background: #fff; padding: 6px 6px 8px; box-shadow: 0 -2px 8px rgba(0,0,0,.1); z-index: 5; }
+  .sekme button { background: transparent; padding: 6px 2px; font-size: 12px; color: var(--gri); display: flex;
+                  flex-direction: column; align-items: center; gap: 2px; border-radius: 10px; }
+  .sekme button span { font-size: 22px; line-height: 1; }
+  .sekme button.aktif { color: var(--lac); font-weight: 700; background: var(--lac2); }
+  .gruplar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .gruplar button { background: var(--lac2); color: var(--lac); font-weight: 600; text-align: left; padding: 14px 12px; font-size: 16px; line-height: 1.25; }
+  .gruplar button small { display: block; font-weight: 400; color: var(--gri); font-size: 13px; margin-top: 2px; }
+  .secim { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 14px 4px; border-bottom: 1px solid #eef1f4; }
+  .secim .ad { font-weight: 600; font-size: 16px; } .secim small { color: var(--gri); font-size: 13px; }
+  .ekli { background: var(--yesil); color: #fff; border-radius: 10px; padding: 3px 8px; font-size: 13px; white-space: nowrap; }
+  .birim { font-weight: 700; color: var(--lac); }
+  .alt { width: 100%; max-width: 560px; margin: 0; border-radius: 18px 18px 0 0; padding-bottom: 24px; }
+  #mkDeger { font-size: 30px; text-align: center; font-weight: 700; padding: 10px; }
+  .eksi { width: 60px; flex: 0 0 60px; background: var(--lac2); color: var(--lac); font-size: 28px; padding: 8px 0; font-weight: 700; }
+  .kalem { border: 1px solid #e2e6eb; border-radius: 12px; padding: 10px; margin-top: 8px; }
+  .kalem .ust { display: flex; justify-content: space-between; gap: 6px; align-items: flex-start; }
+  .kalem .ad { font-weight: 600; font-size: 16px; }
+  .kalem .kod { font-size: 13px; color: var(--gri); }
+  .kalem .uyari { font-size: 13px; color: var(--turuncu); margin-top: 6px; }
+  .kalem.taninmadi { border-color: var(--kirmizi); background: #fff5f4; }
+  .kalem .mkt { width: 120px; text-align: right; }
+  .sil { background: transparent; color: var(--kirmizi); font-size: 24px; padding: 0 6px; line-height: 1; }
+  .oneri { border: 1px solid #e2e6eb; border-radius: 10px; margin-top: 4px; max-height: 260px; overflow: auto; }
+  .oneri div { padding: 12px; border-bottom: 1px solid #eef1f4; }
+  .oneri div small { color: var(--gri); }
+  .cip { display: inline-block; padding: 10px 14px; border-radius: 22px; border: 1px solid #cfd5dd; margin: 4px 4px 0 0;
+         background: #fff; font-size: 16px; }
+  .cip.sec { background: var(--lac); color: #fff; border-color: var(--lac); }
+  .secenek { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .secenek.iki { grid-template-columns: 1fr 1fr; }
+  .secenek button { background: var(--lac2); color: var(--lac); padding: 12px 4px; font-size: 15px; }
+  .secenek button.sec { background: var(--lac); color: #fff; }
+  .gps { font-weight: 600; }
+  .gps.ok { color: var(--yesil); } .gps.hata { color: var(--kirmizi); }
+  .ipucu a { color: var(--lac); font-weight: 600; }
+  button:disabled { opacity: .55; }
+  .toast { position: fixed; left: 12px; right: 12px; bottom: 88px; background: #1b1f24; color: #fff; padding: 14px;
+           border-radius: 12px; z-index: 10; display: none; font-size: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+  .kuyruk { background: var(--sari); color: #000; padding: 10px 12px; border-radius: 10px; margin-bottom: 10px; font-size: 15px; }
+  .kayit { border-bottom: 1px solid #eef1f4; padding: 10px 0; font-size: 15px; }
+  .rozet { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: var(--lac2); white-space: nowrap; }
+  .rozet.onay { background: #d8f0df; color: var(--yesil); } .rozet.red { background: #fbdcd8; color: var(--kirmizi); }
+  .foto img { max-width: 100%; border-radius: 10px; margin-top: 8px; }
+  .isaret { width: 56px; flex: 0 0 56px; background: var(--lac2); color: var(--lac); font-size: 20px; padding: 12px 0; font-weight: 700; }
+  .tkayit { display: flex; gap: 10px; align-items: flex-start; padding: 10px 2px; border-bottom: 1px solid #eef1f4; font-size: 15px; }
+  .tkayit input { width: 22px; height: 22px; flex: 0 0 22px; margin-top: 2px; }
+  .tkayit small { color: var(--gri); }
+  .baglanti { color: var(--lac); font-weight: 600; text-decoration: underline; }
+  .surum { text-align: center; font-size: 12px; color: var(--gri); margin-top: 16px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="marka"><img alt="HM" src="data:image/png;base64,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"><div><b>HM Saha</b><br><small id="kimlik">Katodik koruma saha kaydı</small></div></div>
+  <button id="cikisBtn" class="btn2 kucuk gizli" onclick="cikis()">Çıkış</button>
+</header>
+
+<main>
+  <button id="yukleBtn" class="yukle gizli" onclick="uygulamayiYukle()">📲 HM Saha'yı telefona uygulama olarak yükle</button>
+  <div id="yukleniyor" class="kart ortala">Yükleniyor…</div>
+
+  <!-- ===== GİRİŞ / KAYIT ===== -->
+  <section id="ekGiris" class="gizli">
+    <div class="kart">
+      <div class="secenek iki">
+        <button id="tabGiris" class="sec" onclick="girisSekme('giris')">Giriş</button>
+        <button id="tabKayit" onclick="girisSekme('kayit')">Kayıt ol</button>
+      </div>
+      <div id="girisMesaj" class="ipucu" style="margin-top:10px"></div>
+      <div id="formGiris">
+        <label>Telefon</label><input id="gTel" type="tel" inputmode="tel" placeholder="5xx xxx xx xx">
+        <label>Şifre</label><input id="gPin" type="password" inputmode="numeric" maxlength="6" placeholder="4–6 rakam">
+        <p></p><button class="btn" onclick="girisYap()">Giriş yap</button>
+        <p class="ortala"><a href="#" class="baglanti" onclick="girisSekme('sifre'); return false">Şifremi unuttum</a></p>
+      </div>
+      <div id="formSifre" class="gizli">
+        <p class="ipucu">Yeni şifrenizi belirleyin. İstek ofise gider; ofis onaylayınca yeni şifrenizle giriş yaparsınız.</p>
+        <label>Telefon</label><input id="sTel" type="tel" inputmode="tel" placeholder="5xx xxx xx xx">
+        <label>Yeni şifre (4–6 rakam)</label><input id="sPin" type="password" inputmode="numeric" maxlength="6">
+        <label>Yeni şifre tekrar</label><input id="sPin2" type="password" inputmode="numeric" maxlength="6">
+        <p></p><button class="btn" onclick="sifreTalep()">Şifre değiştirme isteği gönder</button>
+        <p class="ortala"><a href="#" class="baglanti" onclick="girisSekme('giris'); return false">‹ Girişe dön</a></p>
+      </div>
+      <div id="formKayit" class="gizli">
+        <label>Ad Soyad</label><input id="kAd" autocomplete="name">
+        <label>Telefon</label><input id="kTel" type="tel" inputmode="tel" placeholder="5xx xxx xx xx">
+        <label>Görev</label><input id="kGorev" placeholder="ör. Tekniker, Usta, İşçi">
+        <label>Şifre belirleyin (4–6 rakam)</label><input id="kPin" type="password" inputmode="numeric" maxlength="6">
+        <label>Şifre tekrar</label><input id="kPin2" type="password" inputmode="numeric" maxlength="6">
+        <p></p><button class="btn" onclick="kayitOl()">Kayıt ol</button>
+        <p class="ipucu">Kaydınız ofise gider. Onaylandıktan sonra telefon ve şifrenizle bir kez giriş yaparsınız; telefon sizi hatırlar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ANA EKRAN ===== -->
+  <section id="ekAna" class="gizli">
+    <div id="kuyruk" class="kuyruk gizli" onclick="kuyruguIsle()"></div>
+
+    <div class="kart">
+      <label style="margin-top:0">İş / Proje</label>
+      <select id="isSec" onchange="bellek.set('is', this.value)"></select>
+      <label>Tarih</label>
+      <input id="tarih" type="date">
+      <label>Konum</label>
+      <div class="satir">
+        <div style="flex:1"><span id="gpsDurum" class="gps">📍 Konum alınıyor…</span><br><span id="gpsDetay" class="ipucu"></span></div>
+        <button class="btn2 kucuk" onclick="konumAl()">Yenile</button>
+      </div>
+      <input id="konumMetin" style="margin-top:8px" placeholder="KM / istasyon / yer (ör. Başlangıç pig istasyonu)"
+             onchange="bellek.set('konum', this.value)">
+      <label class="satir" style="color:var(--yazi); margin-top:10px">
+        <input id="elleKonum" type="checkbox" style="width:auto; transform:scale(1.4); margin:0 6px 0 4px" onchange="elleKonumDegisti()">
+        GPS çekmiyor / yanlış – koordinatı elle gireceğim
+      </label>
+      <div id="elleKutusu" class="satir gizli" style="margin-top:6px">
+        <input id="elleEnlem" inputmode="decimal" placeholder="Enlem 38.3552">
+        <input id="elleBoylam" inputmode="decimal" placeholder="Boylam 38.3095">
+      </div>
+    </div>
+
+    <!-- MALZEME / İŞ (listeden seçmeli) -->
+    <div id="pRapor" class="panel">
+      <div class="kart">
+        <h2>Malzeme ve yapılan iş</h2>
+        <input id="ara" placeholder="🔍 Ara: kok, anot, kablo, sondaj…" oninput="araYaz()" autocomplete="off">
+        <div id="oneri" class="oneri gizli"></div>
+        <div id="sikKutu" class="gizli"><label>Son kullandıklarınız</label><div id="sikListe"></div></div>
+        <div id="grupKutu">
+          <label>Grup seçin</label>
+          <div id="gruplar" class="gruplar"></div>
+        </div>
+        <div id="grupKalemleri" class="gizli">
+          <div class="satir" style="justify-content:space-between;margin-top:12px">
+            <button class="btn2 kucuk" onclick="grupKapat()">‹ Gruplar</button><b id="grupAdi"></b>
+          </div>
+          <div id="grupKalemListe"></div>
+        </div>
+      </div>
+      <div class="kart">
+        <h2>Seçilenler <span id="kalemSay" class="ipucu"></span></h2>
+        <div id="kalemListe"></div>
+        <label>Not (isteğe bağlı)</label>
+        <textarea id="raporNot" style="min-height:56px" placeholder="ör. KM 12+300, ÖK-7 yanı"></textarea>
+        <p></p><button class="btn" onclick="gonderKilit(raporGonder)">Gönder</button>
+      </div>
+    </div>
+
+    <!-- PUANTAJ -->
+    <div id="pPuantaj" class="panel gizli">
+      <div class="kart">
+        <h2>Günlük puantaj</h2>
+        <label>Sahadaki personel (dokunarak seçin)</label>
+        <div id="kisiler"></div>
+        <label>Çalışma durumu</label>
+        <div id="durumSec" class="secenek"></div>
+        <div id="nedenKutusu" class="gizli">
+          <label>Aksama nedeni</label><select id="neden"></select>
+          <label>Kaybedilen saat</label><input id="kayipSaat" inputmode="decimal" placeholder="ör. 4">
+          <label>İşverende kime bildirildi?</label><input id="bilgi" placeholder="ad, unvan, saat">
+        </div>
+        <label>Açıklama</label>
+        <textarea id="puantajNot" style="min-height:56px"></textarea>
+        <p></p><button class="btn" onclick="gonderKilit(puantajGonder)">Gönder</button>
+      </div>
+    </div>
+
+    <!-- MASRAF -->
+    <div id="pMasraf" class="panel gizli">
+      <div class="kart">
+        <h2>Masraf</h2>
+        <label>Masraf türü</label><select id="masrafTur"></select>
+        <label>Tutar (TL, KDV dahil)</label><input id="tutar" inputmode="decimal" placeholder="ör. 1250,50">
+        <label>Ödeme şekli</label><div id="odemeSec" class="secenek iki"></div>
+        <label>Fiş fotoğrafı</label>
+        <label for="foto" class="btn2 tam ortala" style="display:block;color:var(--lac);font-size:17px;margin:0;padding:14px">📷 Fiş fotoğrafı çek / seç</label>
+        <input id="foto" type="file" accept="image/*" capture="environment" onchange="fotoSecildi(this)" style="display:none">
+        <div id="fotoOnizle" class="foto"></div>
+        <label>Açıklama</label>
+        <textarea id="masrafNot" style="min-height:56px"></textarea>
+        <p></p><button class="btn" onclick="gonderKilit(masrafGonder)">Gönder</button>
+      </div>
+    </div>
+
+    <!-- ÖLÇÜM -->
+    <div id="pOlcum" class="panel gizli">
+      <div class="kart">
+        <h2>Ölçüm</h2>
+        <label>Ölçüm noktası (ÖK no / KM / tank)</label><input id="nokta" placeholder="boş bırakılırsa konum yazısı kullanılır">
+        <label>Referans elektrot</label><select id="ref"></select>
+        <label>ON potansiyel (mV)</label>
+        <div class="satir"><button class="isaret" onclick="isaretCevir('on')">±</button><input id="on" inputmode="decimal" placeholder="-1150"></div>
+        <label>OFF potansiyel (mV)</label>
+        <div class="satir"><button class="isaret" onclick="isaretCevir('off')">±</button><input id="off" inputmode="decimal" placeholder="-920"></div>
+        <label>AC gerilim (V)</label><input id="ac" inputmode="decimal" placeholder="ör. 2,4">
+        <label>Diğer ölçüm</label>
+        <div class="satir"><select id="digerTur" style="flex:2"></select><input id="digerDeger" inputmode="decimal" placeholder="değer" style="flex:1"></div>
+        <label>Açıklama</label>
+        <textarea id="olcumNot" style="min-height:56px"></textarea>
+        <p></p><button class="btn" onclick="gonderKilit(olcumGonder)">Gönder</button>
+      </div>
+    </div>
+
+    <!-- TUTANAK -->
+    <div id="pTutanak" class="panel gizli">
+      <div class="kart">
+        <h2>Tutanak hazırla</h2>
+        <p class="ipucu" style="margin-top:0">Üstte seçili iş için, seçtiğiniz günlerde gönderdiğiniz kayıtlardan tutanak hazırlanır. Masraflar tutanağa girmez.</p>
+        <div class="satir">
+          <div style="flex:1"><label>Başlama</label><input id="tBas" type="date"></div>
+          <div style="flex:1"><label>Bitiş</label><input id="tBit" type="date"></div>
+        </div>
+        <p></p><button class="btn2 tam" onclick="tutanakGetir()">Kayıtları getir</button>
+      </div>
+      <div id="tutanakForm" class="gizli">
+        <div class="kart">
+          <h2>Tutanağa girecekler <span id="tKayitSay" class="ipucu"></span></h2>
+          <div id="tKayitlar"></div>
+        </div>
+        <div class="kart" id="tAlanlar">
+          <label style="margin-top:0">Tutanak türü</label>
+          <div id="tTur" class="secenek iki">
+            <button data-t="KK" class="sec" onclick="this.classList.toggle('sec')">Katodik koruma</button>
+            <button data-t="TOP" onclick="this.classList.toggle('sec')">Topraklama</button>
+          </div>
+          <label>Firma</label><input id="tFirma" placeholder="ör. OMC İnşaat">
+          <div class="satir"><div style="flex:1"><label>İlçe</label><input id="tIlce"></div><div style="flex:1"><label>Mahalle</label><input id="tMahalle"></div></div>
+          <div class="satir"><div style="flex:1"><label>Cadde</label><input id="tCadde"></div><div style="flex:1"><label>Sokak</label><input id="tSokak"></div></div>
+          <div class="satir"><div style="flex:1"><label>Bina no</label><input id="tBina"></div><div style="flex:1"><label>GPS kodu</label><input id="tGps"></div></div>
+          <label>Adres açıklaması</label><textarea id="tAdres" style="min-height:56px" placeholder="ör. Hopa / Ardeşen DGBH"></textarea>
+          <label>Yapılan işin başlığı</label><input id="tBaslik" placeholder="ör. Fındıklı Hat Vanası Take/Off">
+          <label>Açıklama / kroki notu</label><textarea id="tAciklama" style="min-height:70px"></textarea>
+          <p></p><button class="btn" onclick="gonderKilit(tutanakOlustur)">Tutanağı oluştur</button>
+        </div>
+      </div>
+      <div id="tSonuc" class="kart gizli"></div>
+      <div class="kart">
+        <div class="satir" style="justify-content:space-between"><h2>Tutanaklarım</h2>
+          <button class="btn2 kucuk" onclick="tutanaklarim()">Yenile</button></div>
+        <div id="tListe" class="ipucu">—</div>
+      </div>
+    </div>
+
+    <!-- KAYITLARIM -->
+    <div id="pKayit" class="panel gizli">
+      <div class="kart">
+        <div class="satir" style="justify-content:space-between"><h2>Son kayıtlarım</h2>
+          <button class="btn2 kucuk" onclick="kayitlarim()">Yenile</button></div>
+        <div id="kayitListe" class="ipucu">Yükleniyor…</div>
+      </div>
+    </div>
+    <div class="surum">HM Saha v1.3 · kayıtlar HM Ana Dosya'ya yazılır, ofis onaylar</div>
+  </section>
+</main>
+
+<nav id="sekme" class="sekme gizli">
+  <button data-p="pRapor" class="aktif" onclick="panel('pRapor')"><span>📦</span>Malzeme</button>
+  <button data-p="pPuantaj" onclick="panel('pPuantaj')"><span>👷</span>Puantaj</button>
+  <button data-p="pMasraf" onclick="panel('pMasraf')"><span>🧾</span>Masraf</button>
+  <button data-p="pOlcum" onclick="panel('pOlcum')"><span>📏</span>Ölçüm</button>
+  <button data-p="pTutanak" onclick="panel('pTutanak'); tutanakAc()"><span>📝</span>Tutanak</button>
+  <button data-p="pKayit" onclick="panel('pKayit'); kayitlarim()"><span>📋</span>Kayıtlar</button>
+</nav>
+<div id="toast" class="toast" onclick="this.style.display='none'"></div>
+<div id="miktarKutu" class="gizli" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center" onclick="if (event.target === this) mkKapat()">
+  <div class="kart alt">
+    <div id="mkAd" style="font-weight:700;font-size:18px"></div>
+    <div id="mkKod" class="ipucu"></div>
+    <div class="satir" style="margin-top:14px">
+      <button class="eksi" onclick="mkArtir(-1)" aria-label="Azalt">−</button>
+      <input id="mkDeger" inputmode="decimal" placeholder="0">
+      <div id="mkBirim" class="birim" style="font-size:20px;min-width:64px;text-align:center"></div>
+    </div>
+    <div id="mkHizli" class="secenek" style="margin-top:10px"></div>
+    <div class="secenek iki" style="margin-top:14px"><button onclick="mkKapat()">Vazgeç</button><button id="mkTamam" class="sec" onclick="mkEkle()">Listeye ekle</button></div>
+  </div>
+</div>
+<div id="onayKutu" class="gizli" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div class="kart" style="max-width:420px;width:100%">
+    <p id="onayMetin" style="margin-top:0"></p>
+    <div class="secenek iki"><button id="onayHayir">Vazgeç</button><button id="onayEvet" class="sec">Evet</button></div>
+  </div>
+</div>
+
+<script>
+/* ===================== durum ===================== */
+const DEPO = (() => { try { const s = window.localStorage; s.setItem('hm_t', '1'); return s; } catch (e) { return null; } })();
+const bellek = {
+  get(k, d) { try { const v = DEPO && DEPO.getItem('hm_' + k); return v === null || v === undefined ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { if (DEPO) DEPO.setItem('hm_' + k, JSON.stringify(v)); } catch (e) { mesaj('Telefon hafızası dolu: sıradaki kayıtları gönderin.'); } }
+};
+let TOKEN = bellek.get('token', '');
+let VERI = null;
+let KALEMLER = [], MK = null, ACIK_GRUP = '';
+let SECILI_KISILER = [], DURUM = '', ODEME = '', FOTO = null;
+let kuyruk = bellek.get('kuyruk', []);
+let isleniyor = false, tekrarZamani = null;
+const K = { lat: null, lng: null, acc: null, zaman: 0 };
+const KONUM_TAZE_MS = 180000;
+const $ = id => document.getElementById(id);
+
+function sunucu(fn) {
+  const args = Array.prototype.slice.call(arguments, 1);
+  if (window.google && google.script && google.script.run) {          // Apps Script sayfası içinde
+    return new Promise((ok, hata) => {
+      try { const r = google.script.run.withSuccessHandler(ok).withFailureHandler(hata); r[fn].apply(r, args); }
+      catch (e) { hata(e); }
+    });
+  }
+  const api = window.HM_API || '';                                       // telefon uygulaması (PWA / APK)
+  if (!api || api.indexOf('BURAYA') > -1) return Promise.reject(new Error('Sunucu adresi ayarlanmamış (ayar.js).'));
+  return fetch(api, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                      body: JSON.stringify({ fn: fn, args: args }) })
+    .then(r => { if (!r.ok) throw new Error('Sunucu yanıt vermedi (' + r.status + ')'); return r.text(); })
+    .then(t => { let j; try { j = JSON.parse(t); } catch (e) { throw new Error('Sunucu yanıtı okunamadı. Web uygulaması yeni sürümle dağıtıldı mı (Erişim: Herkes)?'); }
+                 if (!j.ok) throw new Error(j.hata || 'Sunucu hatası'); return j.sonuc; });
+}
+let yuklemeIstegi = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); yuklemeIstegi = e; goster('yukleBtn', true); });
+window.addEventListener('appinstalled', () => { goster('yukleBtn', false); mesaj('HM Saha telefona yüklendi. Ana ekrandaki HM simgesinden açabilirsiniz.', 6000); });
+function uygulamayiYukle() { if (!yuklemeIstegi) return; yuklemeIstegi.prompt(); yuklemeIstegi.userChoice.then(() => { yuklemeIstegi = null; goster('yukleBtn', false); }); }
+function mesaj(t, sure) {
+  const el = $('toast'); el.textContent = t; el.style.display = 'block';
+  clearTimeout(el._t); el._t = setTimeout(() => { el.style.display = 'none'; }, sure || 3500);
+}
+function onayIste(metin) {
+  return new Promise(ok => {
+    $('onayMetin').textContent = metin; goster('onayKutu', true);
+    $('onayEvet').onclick = () => { goster('onayKutu', false); ok(true); };
+    $('onayHayir').onclick = () => { goster('onayKutu', false); ok(false); };
+  });
+}
+function hataMetni(e) { return String((e && e.message) || e || 'Bilinmeyen hata').replace(/^(Error|Exception|Hata):\s*/i, ''); }
+function goster(id, evet) { $(id).classList.toggle('gizli', !evet); }
+function esc(s) { return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function sayiOku(v) {
+  if (v === null || v === undefined) return null;
+  let s = String(v).trim().replace(/\s/g, '');
+  if (!s || s === '-') return null;
+  if (s.indexOf(',') > -1 && s.indexOf('.') > -1) s = s.replace(/\./g, '').replace(',', '.'); else s = s.replace(',', '.');
+  const n = Number(s); return isNaN(n) ? null : n;
+}
+function bugunStr() { const d = new Date(); const p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+function kimlikNo() { return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2); }
+function katla(s) {
+  return String(s || '').replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().replace(/ç/g, 'c').replace(/ğ/g, 'g')
+    .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/[×*]/g, 'x');
+}
+
+/* ===================== açılış / giriş ===================== */
+async function basla() {
+  $('tarih').value = bugunStr();
+  goster('yukleniyor', true);
+  if (!TOKEN) { girisEkrani(); return; }
+  try {
+    const r = await sunucu('appBaslat', TOKEN);
+    if (r.durum === 'onayli') { VERI = r; bellek.set('veri', r); anaEkran(); return; }
+    TOKEN = ''; bellek.set('token', '');
+    girisEkrani(r.durum === 'engelli' ? 'Erişiminiz ofis tarafından kapatıldı.' : 'Oturum süresi doldu, yeniden giriş yapın.');
+  } catch (e) {
+    const onceki = bellek.get('veri', null);
+    if (onceki) { VERI = onceki; anaEkran(); mesaj('Sunucuya ulaşılamadı: son listelerle açıldı. Kayıtlar sırada bekler.', 6000); }
+    else girisEkrani('Bağlantı hatası: ' + hataMetni(e));
+  }
+}
+function girisEkrani(m) {
+  goster('yukleniyor', false); goster('ekAna', false); goster('sekme', false); goster('cikisBtn', false);
+  goster('ekGiris', true); $('girisMesaj').textContent = m || ''; $('kimlik').textContent = 'Katodik koruma saha kaydı';
+}
+function girisSekme(s) {
+  goster('formGiris', s === 'giris'); goster('formKayit', s === 'kayit'); goster('formSifre', s === 'sifre');
+  if (s === 'sifre' && !$('sTel').value) $('sTel').value = $('gTel').value;
+  $('tabGiris').classList.toggle('sec', s === 'giris'); $('tabKayit').classList.toggle('sec', s === 'kayit');
+}
+async function girisYap() {
+  try {
+    const r = await sunucu('appGiris', $('gTel').value, $('gPin').value);
+    if (r.durum === 'bekliyor') {
+      $('girisMesaj').textContent = r.ad + (r.sifre ? ', şifre değişikliğiniz' : ', kaydınız') + ' ofis onayı bekliyor. Onaydan sonra tekrar deneyin.';
+      return;
+    }
+    TOKEN = r.token; bellek.set('token', TOKEN); $('gPin').value = ''; basla();
+  } catch (e) { mesaj(hataMetni(e), 5000); }
+}
+async function kayitOl() {
+  if ($('kPin').value !== $('kPin2').value) { mesaj('Şifreler aynı değil.'); return; }
+  try {
+    await sunucu('appKayitOl', { ad: $('kAd').value, tel: $('kTel').value, gorev: $('kGorev').value, pin: $('kPin').value });
+    $('gTel').value = $('kTel').value; girisSekme('giris');
+    $('girisMesaj').textContent = 'Kaydınız alındı. Ofis onaylayınca buradan telefon ve şifrenizle giriş yapın.';
+  } catch (e) { mesaj(hataMetni(e), 6000); }
+}
+async function sifreTalep() {
+  if ($('sPin').value !== $('sPin2').value) { mesaj('Şifreler aynı değil.'); return; }
+  try {
+    const r = await sunucu('appSifreUnuttum', $('sTel').value, $('sPin').value);
+    $('gTel').value = $('sTel').value; $('sPin').value = ''; $('sPin2').value = ''; girisSekme('giris');
+    $('girisMesaj').textContent = r.ad + ', isteğiniz ofise iletildi. Ofis onaylayınca yeni şifrenizle giriş yapın.';
+  } catch (e) { mesaj(hataMetni(e), 6000); }
+}
+async function cikis(sessiz) {
+  if (!sessiz && kuyruk.length && !(await onayIste('Telefonda gönderilmemiş ' + kuyruk.length + ' kayıt var. Yine de çıkılsın mı? (Kayıtlar silinmez)'))) return;
+  TOKEN = ''; bellek.set('token', ''); girisEkrani(sessiz ? 'Oturum kapandı, yeniden giriş yapın. Bekleyen kayıtlarınız silinmedi.' : '');
+}
+
+/* ===================== ana ekran ===================== */
+function secenekDoldur(id, liste, bos) {
+  $(id).innerHTML = (bos !== undefined ? '<option value="">' + esc(bos) + '</option>' : '') +
+    liste.map(x => '<option>' + esc(x) + '</option>').join('');
+}
+function anaEkran() {
+  goster('yukleniyor', false); goster('ekGiris', false); goster('ekAna', true); goster('sekme', true); goster('cikisBtn', true);
+  $('kimlik').textContent = VERI.ad;
+  $('isSec').innerHTML = '<option value="">— iş seçin —</option>' +
+    VERI.isler.map(i => '<option value="' + esc(i.no) + '">' + esc(i.no + ' · ' + i.ad) + '</option>').join('');
+  const sonIs = bellek.get('is', ''); if (VERI.isler.some(i => i.no === sonIs)) $('isSec').value = sonIs;
+  $('konumMetin').value = bellek.get('konum', '');
+  secenekDoldur('neden', VERI.neden, '— seçin —');
+  secenekDoldur('masrafTur', VERI.masraf);
+  secenekDoldur('ref', VERI.ref);
+  $('digerTur').innerHTML = '<option value="">— diğer ölçüm türü —</option>' +
+    VERI.olcum.map(o => '<option value="' + esc(o.ad) + '">' + esc(o.ad + (o.birim ? ' (' + o.birim + ')' : '')) + '</option>').join('');
+  SECILI_KISILER = VERI.personel.indexOf(VERI.ad) > -1 ? [VERI.ad] : [];
+  kisilerCiz();
+  DURUM = VERI.durumlar[0];
+  $('durumSec').innerHTML = VERI.durumlar.map((d, i) =>
+    '<button data-d="' + esc(d) + '" onclick="durumSec(this.dataset.d)">' + esc(['Tam gün', 'Kısmen', 'Çalışılamadı'][i] || d) + '</button>').join('');
+  durumSec(DURUM);
+  ODEME = VERI.odeme[0] || '';
+  $('odemeSec').innerHTML = VERI.odeme.map(o => '<button data-o="' + esc(o) + '" onclick="odemeSec(this.dataset.o)">' + esc(o) + '</button>').join('');
+  odemeSec(ODEME);
+  gruplarCiz(); grupKapat(); sikCiz();
+  listeCiz();
+  panel('pRapor');
+  konumAl();
+  kuyrukGoster();
+  kuyruguIsle();
+}
+function panel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('gizli', p.id !== id));
+  document.querySelectorAll('#sekme button').forEach(b => b.classList.toggle('aktif', b.dataset.p === id));
+  window.scrollTo(0, 0);
+}
+
+/* ===================== konum ===================== */
+function gpsYaz(durum, detay, sinif) { $('gpsDurum').textContent = durum; $('gpsDurum').className = 'gps ' + (sinif || ''); $('gpsDetay').innerHTML = detay || ''; }
+function haritaLinki(lat, lng) { return 'https://www.google.com/maps/search/?api=1&query=' + lat + '%2C' + lng; }
+function gpsGoster() {
+  if (K.lat === null) return;
+  const zayif = K.acc > 100;
+  gpsYaz('📍 Konum alındı (±' + K.acc + ' m)' + (zayif ? ' – zayıf' : ''),
+    esc(K.lat + ', ' + K.lng) + ' · <a href="' + haritaLinki(K.lat, K.lng) + '" target="_blank" rel="noopener">Haritada kontrol et</a>' +
+    (zayif ? '<br>Açık alana çıkıp <b>Yenile</b>\'ye basın.' : ''), zayif ? 'hata' : 'ok');
+}
+function konumYaz(p) {
+  K.lat = +p.coords.latitude.toFixed(6); K.lng = +p.coords.longitude.toFixed(6); K.acc = Math.round(p.coords.accuracy); K.zaman = Date.now();
+  gpsGoster();
+}
+let konumIzle = null, konumSure = null;
+function konumIzlemeBitir() {
+  if (konumIzle !== null && navigator.geolocation) navigator.geolocation.clearWatch(konumIzle);
+  konumIzle = null; clearTimeout(konumSure);
+}
+/** GPS'i 30 sn'ye kadar dinler, en hassas okumayı tutar; ±15 m'ye inince durur. Eski (önbellekteki) konumu kullanmaz. */
+function konumAl() {
+  konumIzlemeBitir();
+  if ($('elleKonum').checked) { gpsYaz('✍ Konum elle girilecek', 'Aşağıya enlem ve boylamı yazın.'); return; }
+  if (!navigator.geolocation) { gpsYaz('⚠ Bu cihazda GPS yok', 'KM / yer adını yazın.', 'hata'); return; }
+  gpsYaz('📍 Konum alınıyor…', 'Açık alanda daha hassas olur.');
+  let enIyi = null;
+  konumIzle = navigator.geolocation.watchPosition(p => {
+    if (!enIyi || p.coords.accuracy <= enIyi.coords.accuracy) { enIyi = p; konumYaz(p); }
+    if (p.coords.accuracy <= 15) konumIzlemeBitir();
+  }, err => {
+    if (enIyi) return;
+    konumIzlemeBitir();
+    K.lat = K.lng = K.acc = null; K.zaman = 0;
+    const n = { 1: 'konum izni verilmedi', 2: 'sinyal yok', 3: 'zaman aşımı' }[err.code] || 'hata';
+    gpsYaz('⚠ Konum alınamadı (' + n + ')', 'KM / yer adını yazın; gerekirse koordinatı elle girin.', 'hata');
+  }, { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 });
+  konumSure = setTimeout(konumIzlemeBitir, 30000);
+}
+/** Gönderimden önce: konum 3 dakikadan eskiyse en fazla 10 sn içinde yeniler. */
+function konumTazele() {
+  return new Promise(ok => {
+    if ($('elleKonum').checked || !navigator.geolocation || (K.zaman && Date.now() - K.zaman < KONUM_TAZE_MS)) { ok(); return; }
+    gpsYaz('📍 Konum yenileniyor…', '');
+    navigator.geolocation.getCurrentPosition(p => { konumYaz(p); ok(); },
+      () => { if (K.lat !== null) gpsGoster(); else gpsYaz('⚠ Konum alınamadı', 'Kayıt konumsuz gidecek; KM / yer adını yazın.', 'hata'); ok(); },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+  });
+}
+function elleKonumDegisti() { goster('elleKutusu', $('elleKonum').checked); konumAl(); }
+function konumPaketi() {
+  const metin = $('konumMetin').value.trim();
+  if ($('elleKonum').checked) return { lat: sayiOku($('elleEnlem').value), lng: sayiOku($('elleBoylam').value), acc: null, elle: true, metin };
+  return { lat: K.lat, lng: K.lng, acc: K.acc, elle: false, metin, zaman: K.zaman ? new Date(K.zaman).toISOString() : '' };
+}
+
+/* ===================== malzeme / iş seçimi ===================== */
+const GRUP_IKON = { 'Anot': '⚡', 'Dolgu (backfill)': '⛏️', 'T/R ünitesi': '🔌', 'Kablo': '🧵', 'Ölçü kutusu': '📦', 'Bağlantı kutusu': '🗃️',
+  'Referans elektrot': '🎯', 'Kupon': '🔘', 'İzolasyon': '🧱', 'DC dekuplör / SSD': '🔧', 'Termit / pin brazing': '🔥',
+  'Yardımcı malzeme': '🧰', 'Data logger / RMU': '📡', 'Topraklama': '⏚', 'Yapılan iş': '👷' };
+const BIRIM_AD = { m: 'metre', km: 'km', kg: 'kg', t: 'ton', adet: 'adet', ad: 'adet', set: 'set', takim: 'takım', 'takım': 'takım',
+  'm²': 'm²', m2: 'm²', 'm³': 'm³', lt: 'litre', gun: 'gün', 'gün': 'gün', nokta: 'nokta', ad_gun: 'adam-gün' };
+function birimAdi(b) { const k = String(b || '').trim(); return BIRIM_AD[k] || BIRIM_AD[k.toLowerCase()] || k || 'adet'; }
+const KOD_GRUP = [[/^ANT-/, 'Anot'], [/^DLG-/, 'Dolgu (backfill)'], [/^TR-/, 'T/R ünitesi'], [/^KBL-(EK|PAB)/, 'Yardımcı malzeme'],
+  [/^KBL-/, 'Kablo'], [/^OK-/, 'Ölçü kutusu'], [/^BK-/, 'Bağlantı kutusu'], [/^REF-/, 'Referans elektrot'], [/^KPN-/, 'Kupon'],
+  [/^IZO-/, 'İzolasyon'], [/^SSD-/, 'DC dekuplör / SSD'], [/^(TRM|PIN)-/, 'Termit / pin brazing'], [/^DL-/, 'Data logger / RMU'],
+  [/^TOP-/, 'Topraklama'], [/^(IKZ|VNT|KSN)-/, 'Yardımcı malzeme']];
+function grupAdi(k) {
+  if (k.tip === 'P') return 'Yapılan iş';
+  const g = String(k.grup || '').split(' – ')[0].trim();
+  if (g) return g;
+  const e = KOD_GRUP.find(x => x[0].test(k.kod));        // sunucu grup göndermiyorsa koddan tahmin
+  return e ? e[1] : 'Diğer';
+}
+function hizliTuslar(b) {
+  const a = birimAdi(b);
+  if (a === 'metre') return [1, 5, 10, 50, 100, 500];
+  if (a === 'kg') return [1, 5, 25, 50, 100, 1000];
+  return [1, 2, 5, 10, 20, 50];
+}
+function kalemBul(tip, kod) { return VERI.kalemler.find(x => x.tip === tip && x.kod === kod); }
+function seciliMi(tip, kod) { return KALEMLER.find(x => x.tip === tip && x.kod === kod); }
+function gruplarCiz() {
+  const sira = [], say = {};
+  VERI.kalemler.forEach(k => { const g = grupAdi(k); if (!(g in say)) { say[g] = 0; sira.push(g); } say[g]++; });
+  sira.sort((a, b) => (a === 'Yapılan iş') - (b === 'Yapılan iş'));
+  $('gruplar').innerHTML = sira.map(g => '<button data-g="' + esc(g) + '" onclick="grupAc(this.dataset.g)">' + (GRUP_IKON[g] || '•') + ' ' + esc(g) +
+    '<small>' + say[g] + ' kalem</small></button>').join('') || '<p class="ipucu">Malzeme listesi boş – ofise bildirin.</p>';
+}
+function kalemSatiri(k) {
+  const sec = seciliMi(k.tip, k.kod);
+  return '<div class="secim" data-t="' + esc(k.tip) + '" data-k="' + esc(k.kod) + '" onclick="mkAc(this.dataset.t, this.dataset.k)">' +
+    '<div><div class="ad">' + esc(k.ad) + '</div><small>' + esc(k.kod) + ' · birim: <span class="birim">' + esc(birimAdi(k.birim)) + '</span></small></div>' +
+    (sec ? '<span class="ekli">✓ ' + esc(sec.miktar) + ' ' + esc(birimAdi(k.birim)) + '</span>' : '<span class="birim" style="font-size:22px">＋</span>') + '</div>';
+}
+function grupAc(g) {
+  ACIK_GRUP = g;
+  $('grupAdi').textContent = (GRUP_IKON[g] || '') + ' ' + g;
+  $('grupKalemListe').innerHTML = VERI.kalemler.filter(k => grupAdi(k) === g).map(kalemSatiri).join('');
+  goster('grupKutu', false); goster('grupKalemleri', true); goster('sikKutu', false);
+}
+function grupKapat() { ACIK_GRUP = ''; goster('grupKalemleri', false); goster('grupKutu', true); sikCiz(); }
+function sikCiz() {
+  const sik = bellek.get('sik', []).map(a => { const p = a.split('|'); return kalemBul(p[0], p.slice(1).join('|')); }).filter(Boolean);
+  goster('sikKutu', sik.length > 0 && !ACIK_GRUP);
+  $('sikListe').innerHTML = sik.map(k => '<span class="cip" data-t="' + esc(k.tip) + '" data-k="' + esc(k.kod) + '" onclick="mkAc(this.dataset.t, this.dataset.k)">' +
+    esc(k.ad.length > 28 ? k.ad.slice(0, 27) + '…' : k.ad) + '</span>').join('');
+}
+function sikEkle(k) {
+  const a = k.tip + '|' + k.kod;
+  bellek.set('sik', [a].concat(bellek.get('sik', []).filter(x => x !== a)).slice(0, 8));
+}
+/* miktar kutusu */
+function mkAc(tip, kod) {
+  const k = kalemBul(tip, kod); if (!k) return;
+  const sec = seciliMi(tip, kod);
+  MK = k;
+  $('mkAd').textContent = k.ad;
+  $('mkKod').textContent = (k.tip === 'P' ? 'Yapılan iş · ' : 'Malzeme · ') + k.kod;
+  $('mkBirim').textContent = birimAdi(k.birim);
+  $('mkDeger').value = sec ? sec.miktar : '';
+  $('mkHizli').innerHTML = hizliTuslar(k.birim).map(n => '<button onclick="mkArtir(' + n + ')">+' + n + '</button>').join('');
+  $('mkTamam').textContent = sec ? 'Güncelle' : 'Listeye ekle';
+  goster('miktarKutu', true); goster('oneri', false);
+}
+function mkArtir(n) {
+  const v = sayiOku($('mkDeger').value) || 0;
+  const y = Math.max(0, Math.round((v + n) * 1000) / 1000);
+  $('mkDeger').value = y ? String(y).replace('.', ',') : '';
+}
+function mkKapat() { goster('miktarKutu', false); MK = null; }
+function mkEkle() {
+  if (!MK) return;
+  const m = sayiOku($('mkDeger').value);
+  if (!(m > 0)) { mesaj('Miktarı yazın ya da + tuşlarıyla girin.'); $('mkDeger').focus(); return; }
+  const sec = seciliMi(MK.tip, MK.kod);
+  if (sec) sec.miktar = String(m).replace('.', ',');
+  else KALEMLER.push({ tip: MK.tip, kod: MK.kod, ad: MK.ad, miktar: String(m).replace('.', ','), birim: MK.birim });
+  sikEkle(MK);
+  mesaj('✓ ' + MK.ad + ': ' + String(m).replace('.', ',') + ' ' + birimAdi(MK.birim), 2500);
+  mkKapat(); $('ara').value = '';
+  listeCiz();
+  if (ACIK_GRUP) grupAc(ACIK_GRUP); else sikCiz();
+}
+/* seçilenler listesi */
+function listeCiz() {
+  const n = KALEMLER.length;
+  $('kalemSay').textContent = n ? '(' + n + ')' : '';
+  if (!n) { $('kalemListe').innerHTML = '<p class="ipucu">Henüz kalem yok. Yukarıdan grup seçip malzemeye dokunun.</p>'; return; }
+  $('kalemListe').innerHTML = KALEMLER.map((k, i) =>
+    '<div class="kalem"><div class="ust"><div><div class="ad">' + esc(k.ad) + '</div><div class="kod">' +
+    esc((k.tip === 'P' ? 'İş · ' : 'Malzeme · ') + k.kod) + '</div></div>' +
+    '<button class="sil" onclick="kalemSil(' + i + ')" aria-label="Sil">✕</button></div>' +
+    '<div class="satir" style="margin-top:8px"><input class="mkt" inputmode="decimal" value="' + esc(k.miktar) +
+    '" oninput="KALEMLER[' + i + '].miktar=this.value" placeholder="miktar"><span class="birim">' + esc(birimAdi(k.birim)) + '</span></div></div>').join('');
+}
+function kalemSil(i) { KALEMLER.splice(i, 1); listeCiz(); if (ACIK_GRUP) grupAc(ACIK_GRUP); }
+function araYaz() {
+  const q = katla($('ara').value).trim();
+  if (!q) { goster('oneri', false); return; }
+  const parcalar = q.split(/\s+/);
+  const bulunan = VERI.kalemler.filter(k => { const t = katla(k.ad + ' ' + k.kod + ' ' + grupAdi(k)); return parcalar.every(p => t.indexOf(p) > -1); }).slice(0, 20);
+  $('oneri').innerHTML = bulunan.length
+    ? bulunan.map(k => '<div data-t="' + esc(k.tip) + '" data-k="' + esc(k.kod) + '" onclick="mkAc(this.dataset.t, this.dataset.k)">' + esc(k.ad) +
+        '<br><small>' + esc((k.tip === 'P' ? 'İş · ' : 'Malzeme · ') + k.kod) + ' · ' + esc(birimAdi(k.birim)) + '</small></div>').join('')
+    : '<div class="ipucu">Bulunamadı. Ofise söyleyin, listeye eklesin; şimdilik nota yazın.</div>';
+  goster('oneri', true);
+}
+
+/* ===================== gönderimler ===================== */
+let gonderiliyor = false;
+async function gonderKilit(fn) {
+  if (gonderiliyor) return;
+  gonderiliyor = true;
+  document.querySelectorAll('.panel .btn').forEach(b => { b.disabled = true; });
+  try { await fn(); } finally {
+    gonderiliyor = false;
+    document.querySelectorAll('.panel .btn').forEach(b => { b.disabled = false; });
+  }
+}
+async function ortakPaket(tur) {
+  const isNo = $('isSec').value;
+  if (!isNo) { mesaj('Önce üstten işi seçin.'); $('isSec').focus(); return null; }
+  await konumTazele();
+  return { id: kimlikNo(), tur, isNo, tarih: $('tarih').value || bugunStr(), konum: konumPaketi(), olusturma: new Date().toISOString() };
+}
+async function raporGonder() {
+  if (!KALEMLER.length) { mesaj('Listede kalem yok. Yukarıdan grup seçip malzemeye dokunun.'); return; }
+  const eksik = KALEMLER.find(k => !(sayiOku(k.miktar) > 0));
+  if (eksik) { mesaj('Miktarı boş kalem var: ' + eksik.ad); return; }
+  const p = await ortakPaket('rapor'); if (!p) return;
+  p.metin = ''; p.aciklama = $('raporNot').value.trim(); p.taninmayan = [];
+  p.kalemler = KALEMLER.map(k => ({ tip: k.tip, kod: k.kod, ad: k.ad, miktar: sayiOku(k.miktar), birim: k.birim, kaynak: 'elle', soylenen: '', kontrol: [] }));
+  kuyrugaEkle(p, 'Kayıt');
+  KALEMLER = []; $('raporNot').value = ''; listeCiz();
+  if (ACIK_GRUP) grupAc(ACIK_GRUP);
+}
+function kisilerCiz() {
+  $('kisiler').innerHTML = VERI.personel.map(k => '<span class="cip' + (SECILI_KISILER.indexOf(k) > -1 ? ' sec' : '') +
+    '" data-k="' + esc(k) + '" onclick="kisiSec(this.dataset.k)">' + esc(k) + '</span>').join('') ||
+    '<p class="ipucu">Personel listesi boş.</p>';
+}
+function kisiSec(k) { const i = SECILI_KISILER.indexOf(k); if (i > -1) SECILI_KISILER.splice(i, 1); else SECILI_KISILER.push(k); kisilerCiz(); }
+function durumSec(d) {
+  DURUM = d;
+  document.querySelectorAll('#durumSec button').forEach(b => b.classList.toggle('sec', b.dataset.d === d));
+  goster('nedenKutusu', d !== VERI.durumlar[0]);
+}
+function odemeSec(o) { ODEME = o; document.querySelectorAll('#odemeSec button').forEach(b => b.classList.toggle('sec', b.dataset.o === o)); }
+async function puantajGonder() {
+  if (!SECILI_KISILER.length) { mesaj('Sahadaki personeli seçin.'); return; }
+  if (DURUM !== VERI.durumlar[0] && !$('neden').value) { mesaj('Aksama nedenini seçin.'); return; }
+  const p = await ortakPaket('puantaj'); if (!p) return;
+  Object.assign(p, { kisiler: SECILI_KISILER.slice(), durum: DURUM, neden: DURUM !== VERI.durumlar[0] ? $('neden').value : '',
+    saat: $('kayipSaat').value, bilgi: $('bilgi').value.trim(), aciklama: $('puantajNot').value.trim() });
+  kuyrugaEkle(p, 'Puantaj');
+  $('kayipSaat').value = ''; $('bilgi').value = ''; $('puantajNot').value = ''; $('neden').value = ''; durumSec(VERI.durumlar[0]);
+}
+function fotoSecildi(inp) {
+  const f = inp.files && inp.files[0]; FOTO = null; $('fotoOnizle').innerHTML = '';
+  if (!f) return;
+  const img = new Image(), url = URL.createObjectURL(f);
+  img.onload = () => {
+    const enBuyuk = 1600, o = Math.min(1, enBuyuk / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * o); c.height = Math.round(img.height * o);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const d = c.toDataURL('image/jpeg', 0.7); URL.revokeObjectURL(url);
+    FOTO = { veri: d.split(',')[1], mime: 'image/jpeg' };
+    $('fotoOnizle').innerHTML = '<img src="' + d + '" alt="fiş">';
+  };
+  img.onerror = () => mesaj('Fotoğraf okunamadı, tekrar çekin.');
+  img.src = url;
+}
+async function masrafGonder() {
+  if (sayiOku($('tutar').value) === null) { mesaj('Tutarı yazın.'); return; }
+  if (!FOTO && !(await onayIste('Fiş fotoğrafı yok. Fotoğrafsız gönderilsin mi?'))) return;
+  const p = await ortakPaket('masraf'); if (!p) return;
+  Object.assign(p, { masrafTur: $('masrafTur').value, tutar: $('tutar').value, odeme: ODEME, foto: FOTO, aciklama: $('masrafNot').value.trim() });
+  kuyrugaEkle(p, 'Masraf');
+  $('tutar').value = ''; $('masrafNot').value = ''; $('foto').value = ''; $('fotoOnizle').innerHTML = ''; FOTO = null;
+}
+function isaretCevir(id) { const el = $(id); const v = el.value.trim(); el.value = v.charAt(0) === '-' ? v.slice(1) : '-' + v; el.focus(); }
+async function olcumGonder() {
+  const deg = ['on', 'off', 'ac', 'digerDeger'].map(id => sayiOku($(id).value));
+  if (deg.every(v => v === null)) { mesaj('En az bir ölçüm değeri girin.'); return; }
+  if (deg[3] !== null && !$('digerTur').value) { mesaj('Diğer ölçümün türünü seçin.'); return; }
+  const p = await ortakPaket('olcum'); if (!p) return;
+  Object.assign(p, { nokta: $('nokta').value.trim(), ref: $('ref').value, on: $('on').value, off: $('off').value, ac: $('ac').value,
+    digerTur: $('digerTur').value, digerDeger: $('digerDeger').value, aciklama: $('olcumNot').value.trim() });
+  kuyrugaEkle(p, 'Ölçüm');
+  ['on', 'off', 'ac', 'digerDeger', 'olcumNot', 'nokta'].forEach(id => { $(id).value = ''; }); $('digerTur').value = '';
+}
+
+/* ===================== sıra (çevrimdışı) ===================== */
+function kuyrugaEkle(p, ad) { kuyruk.push(p); bellek.set('kuyruk', kuyruk); kuyrukGoster(); mesaj(ad + ' gönderiliyor…'); kuyruguIsle(); }
+function kuyrukGoster() {
+  goster('kuyruk', kuyruk.length > 0);
+  $('kuyruk').textContent = '⏳ Telefonda bekleyen ' + kuyruk.length + ' kayıt var. Bağlantı gelince gönderilecek (şimdi denemek için dokunun).';
+}
+async function kuyruguIsle() {
+  if (isleniyor || !kuyruk.length || !TOKEN) { kuyrukGoster(); return; }
+  isleniyor = true; clearTimeout(tekrarZamani);
+  const p = kuyruk[0];
+  try {
+    const r = await sunucu('appGonder', TOKEN, p);
+    kuyruk.shift(); bellek.set('kuyruk', kuyruk);
+    mesaj('✓ Kaydedildi: ' + r.n + ' satır' + (r.uyari ? ' (' + r.uyari + ' satırda ofis kontrolü)' : ''), 4500);
+    isleniyor = false; kuyrukGoster();
+    if (kuyruk.length) kuyruguIsle();
+  } catch (e) {
+    isleniyor = false;
+    const m = hataMetni(e);
+    if (/^YETKI/.test(m)) { cikis(true); return; }
+    if (/İş seçilmedi|Gönderilecek kalem yok|Kayıt türü tanınmadı/.test(m)) {
+      kuyruk.shift(); bellek.set('kuyruk', kuyruk); kuyrukGoster(); mesaj('Kayıt gönderilemedi: ' + m, 6000); return;
+    }
+    kuyrukGoster(); mesaj('Gönderilemedi, kayıt telefonda bekliyor. (' + m + ')', 6000);
+    tekrarZamani = setTimeout(kuyruguIsle, 30000);
+  }
+}
+window.addEventListener('online', () => kuyruguIsle());
+
+/* ===================== tutanak ===================== */
+let T_KAYIT = [];
+function tutanakAc() {
+  if (!$('tBas').value) $('tBas').value = $('tarih').value || bugunStr();
+  if (!$('tBit').value) $('tBit').value = $('tBas').value;
+  tutanaklarim();
+}
+function tKayitMetni(k) {
+  const m = k.miktar === '' ? '' : String(k.miktar).replace('.', ',') + ' ' + birimAdi(k.birim);
+  if (k.tur === 'Günlük puantaj') return 'Puantaj: ' + k.kod + (k.kisiler ? ' · ' + k.kisiler : '');
+  if (k.tur === 'Ölçüm') return 'Ölçüm: ' + k.kod + ' ' + String(k.miktar).replace('.', ',') + ' ' + k.birim + (k.konum ? ' · ' + k.konum : '');
+  return (k.tur === 'Yapılan iş' ? 'İş: ' : '') + k.tanim + ' – ' + m;
+}
+async function tutanakGetir() {
+  const isNo = $('isSec').value;
+  if (!isNo) { mesaj('Önce üstten işi seçin.'); $('isSec').focus(); return; }
+  goster('tSonuc', false); goster('tutanakForm', true); goster('tAlanlar', false);
+  $('tKayitlar').innerHTML = '<p class="ipucu">Yükleniyor…</p>'; $('tKayitSay').textContent = '';
+  try {
+    const r = await sunucu('appTutanakOnizle', TOKEN, { isNo, bas: $('tBas').value, bit: $('tBit').value });
+    T_KAYIT = r.kayitlar || [];
+    if (!T_KAYIT.length) {
+      $('tKayitlar').innerHTML = '<p class="ipucu">Bu tarihlerde bu işe ait kaydınız yok. Önce Malzeme / Puantaj / Ölçüm kaydı gönderin, sonra tekrar deneyin.</p>';
+      return;
+    }
+    $('tKayitSay').textContent = '(' + T_KAYIT.length + ')';
+    $('tKayitlar').innerHTML = T_KAYIT.map((k, i) =>
+      '<label class="tkayit"><input type="checkbox" checked data-i="' + i + '"><span>' + esc(tKayitMetni(k)) +
+      '<br><small>' + esc(k.tarih) + (k.tutanak ? ' · zaten tutanakta: ' + esc(k.tutanak) : '') + '</small></span></label>').join('') +
+      '<p class="ipucu">Tutanağa girmeyecek kaydın işaretini kaldırın.</p>';
+    const doldur = (id, v) => { if (!$(id).value && v) $(id).value = v; };
+    doldur('tFirma', r.oneri.firma); doldur('tAdres', r.oneri.adres); doldur('tGps', r.oneri.gps);
+    goster('tAlanlar', true);
+  } catch (e) {
+    if (/^YETKI/.test(hataMetni(e))) { cikis(true); return; }
+    $('tKayitlar').innerHTML = '<p class="ipucu">Kayıtlar alınamadı: ' + esc(hataMetni(e)) + '</p>';
+  }
+}
+async function tutanakOlustur() {
+  const isNo = $('isSec').value;
+  if (!isNo) { mesaj('Önce üstten işi seçin.'); return; }
+  const kutular = Array.from(document.querySelectorAll('#tKayitlar input[type=checkbox]'));
+  const haric = kutular.filter(c => !c.checked).map(c => T_KAYIT[Number(c.dataset.i)].id);
+  if (!kutular.length || haric.length === kutular.length) { mesaj('En az bir kayıt seçin.'); return; }
+  const turler = Array.from(document.querySelectorAll('#tTur button.sec')).map(b => b.dataset.t);
+  if (!turler.length) { mesaj('Tutanak türünü seçin.'); return; }
+  if (!$('tFirma').value.trim()) { mesaj('Firma adını yazın.'); $('tFirma').focus(); return; }
+  if (!(await onayIste('Tutanak oluşturulsun mu? Numara verilir ve ofise düşer.'))) return;
+  try {
+    const r = await sunucu('appTutanakOlustur', TOKEN, {
+      isNo, bas: $('tBas').value, bit: $('tBit').value, turler, haric,
+      firma: $('tFirma').value, ilce: $('tIlce').value, mahalle: $('tMahalle').value, cadde: $('tCadde').value,
+      sokak: $('tSokak').value, binaNo: $('tBina').value, gps: $('tGps').value, adres: $('tAdres').value,
+      baslik: $('tBaslik').value, aciklama: $('tAciklama').value });
+    $('tSonuc').innerHTML = '<h2>✓ Tutanak № ' + esc(r.no) + ' hazır</h2><p>Doğrulama kodu: <b>' + esc(r.kod) + '</b> · ' + esc(r.kayit) +
+      ' kayıt. Ofis Tutanaklar sayfasından görür ve yazdırır.</p>' +
+      (r.link ? '<a class="btn" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box" href="' + esc(r.link) + '" target="_blank" rel="noopener">Tutanağı aç</a>' : '');
+    goster('tSonuc', true); goster('tutanakForm', false);
+    ['tBaslik', 'tAciklama'].forEach(id => { $(id).value = ''; });
+    tutanaklarim();
+    window.scrollTo(0, 0);
+  } catch (e) {
+    if (/^YETKI/.test(hataMetni(e))) { cikis(true); return; }
+    mesaj('Tutanak oluşturulamadı: ' + hataMetni(e), 6000);
+  }
+}
+async function tutanaklarim() {
+  try {
+    const r = await sunucu('appTutanaklarim', TOKEN);
+    $('tListe').innerHTML = r.length ? r.map(t => '<div class="kayit"><div class="satir" style="justify-content:space-between"><b>№ ' + esc(t.no) + '</b>' +
+      '<span class="rozet' + (t.durum === 'İMZALANDI' ? ' onay' : (t.durum === 'İPTAL' ? ' red' : '')) + '">' + esc(t.durum || 'BEKLİYOR') + '</span></div>' +
+      '<div>' + esc(t.tarih + ' · ' + t.is + (t.firma ? ' · ' + t.firma : '')) + '</div>' +
+      (t.link ? '<a class="baglanti" href="' + esc(t.link) + '" target="_blank" rel="noopener">Tutanağı aç</a>' : '') + '</div>').join('')
+      : 'Henüz tutanağınız yok.';
+  } catch (e) {
+    if (/^YETKI/.test(hataMetni(e))) { cikis(true); return; }
+    $('tListe').textContent = 'Liste alınamadı: ' + hataMetni(e);
+  }
+}
+
+/* ===================== kayıtlarım ===================== */
+async function kayitlarim() {
+  $('kayitListe').textContent = 'Yükleniyor…';
+  try {
+    const r = await sunucu('appKayitlarim', TOKEN);
+    if (!r.length) { $('kayitListe').textContent = 'Henüz kaydınız yok.'; return; }
+    $('kayitListe').innerHTML = r.map(k => {
+      const rozet = k.onay === 'ONAY' ? '<span class="rozet onay">Onaylandı</span>' : (k.onay === 'RED' ? '<span class="rozet red">Reddedildi</span>' : '<span class="rozet">Bekliyor</span>');
+      const deger = k.tutar !== '' ? k.tutar + ' TL' : (k.miktar !== '' ? k.miktar + ' ' + k.birim : '');
+      return '<div class="kayit"><div class="satir" style="justify-content:space-between"><b>' + esc(k.tarih + ' · ' + k.tur) + '</b>' + rozet + '</div>' +
+        '<div>' + esc(k.kod === k.tanim ? k.kod : (k.tanim || k.kod)) + (deger ? ' — <b>' + esc(deger) + '</b>' : '') + '</div>' +
+        (k.kontrol ? '<div class="ipucu" style="color:var(--turuncu)">' + esc(k.kontrol) + '</div>' : '') + '</div>';
+    }).join('');
+  } catch (e) {
+    if (/^YETKI/.test(hataMetni(e))) { cikis(true); return; }
+    $('kayitListe').textContent = 'Kayıtlar alınamadı: ' + hataMetni(e);
+  }
+}
+
+basla();
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
