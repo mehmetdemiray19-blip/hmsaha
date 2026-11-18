@@ -3,15 +3,19 @@ package com.hm.saha;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.print.PdfYazici;
+import android.print.PrintDocumentAdapter;
 import android.provider.MediaStore;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -19,8 +23,11 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
+
+import org.json.JSONObject;
 
 import java.io.File;
 
@@ -61,6 +68,7 @@ public class MainActivity extends Activity {
         ayar.setUserAgentString(ayar.getUserAgentString() + " HMSahaApp/" + BuildConfig.VERSION_NAME);
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(web, true);
+        web.addJavascriptInterface(new Kopru(), "HMAndroid");   // tutanak sayfası: PDF üret, paylaş / aç
 
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -101,6 +109,83 @@ public class MainActivity extends Activity {
             web.restoreState(durum);
         } else {
             web.loadUrl(ADRES);
+        }
+    }
+
+    /* ---------- Tutanak PDF: sayfa A4 PDF'e yazılır, paylaş menüsü (WhatsApp, e-posta, SMS…) ya da PDF görüntüleyici açılır ---------- */
+
+    private class Kopru {
+        @JavascriptInterface
+        public String surum() {
+            return BuildConfig.VERSION_NAME;
+        }
+
+        @JavascriptInterface
+        public void pdf(final String dosyaAdi, final String islem, final String konu, final String metin) {
+            runOnUiThread(() -> pdfUret(dosyaAdi, islem, konu, metin));
+        }
+    }
+
+    private void pdfUret(String dosyaAdi, final String islem, final String konu, final String metin) {
+        try {
+            File klasor = new File(getCacheDir(), "pdf");
+            if (!klasor.exists()) {
+                klasor.mkdirs();
+            }
+            String ad = dosyaAdi == null ? "" : dosyaAdi.replaceAll("[^A-Za-z0-9._-]", "_");
+            if (!ad.toLowerCase().endsWith(".pdf")) {
+                ad = ad + ".pdf";
+            }
+            if (ad.length() > 90) {
+                ad = ad.substring(ad.length() - 90);
+            }
+            File dosya = new File(klasor, ad);
+            PrintDocumentAdapter adapter = web.createPrintDocumentAdapter(ad);
+            PdfYazici.yaz(adapter, dosya, new PdfYazici.Sonuc() {
+                @Override
+                public void tamam(File f) {
+                    jsBildir(true, "");
+                    pdfKullan(f, islem, konu, metin);
+                }
+
+                @Override
+                public void hata(String mesaj) {
+                    jsBildir(false, mesaj);
+                    Toast.makeText(MainActivity.this, "PDF oluşturulamadı: " + mesaj, Toast.LENGTH_LONG).show();
+                }
+            });
+        } catch (Exception e) {
+            jsBildir(false, String.valueOf(e));
+        }
+    }
+
+    private void pdfKullan(File f, String islem, String konu, String metin) {
+        Uri uri = FileProvider.getUriForFile(this, "com.hm.saha.dosya", f);
+        Intent niyet;
+        if ("ac".equals(islem)) {
+            niyet = new Intent(Intent.ACTION_VIEW);
+            niyet.setDataAndType(uri, "application/pdf");
+            niyet.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else {
+            Intent gonder = new Intent(Intent.ACTION_SEND);
+            gonder.setType("application/pdf");
+            gonder.putExtra(Intent.EXTRA_STREAM, uri);
+            gonder.putExtra(Intent.EXTRA_SUBJECT, konu);
+            gonder.putExtra(Intent.EXTRA_TEXT, metin);
+            gonder.setClipData(ClipData.newRawUri(f.getName(), uri));
+            gonder.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            niyet = Intent.createChooser(gonder, "Tutanağı gönder");
+        }
+        try {
+            startActivity(niyet);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "Bu telefonda PDF açacak uygulama yok.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void jsBildir(boolean ok, String mesaj) {
+        if (web != null) {
+            web.evaluateJavascript("window.pdfSonuc && window.pdfSonuc(" + ok + "," + JSONObject.quote(mesaj) + ")", null);
         }
     }
 
