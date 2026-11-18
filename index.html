@@ -301,7 +301,7 @@
         <div id="kayitListe" class="ipucu">Yükleniyor…</div>
       </div>
     </div>
-    <div class="surum">HM Saha v1.6 · kayıtlar HM Ana Dosya'ya yazılır, ofis onaylar</div>
+    <div class="surum">HM Saha v1.7 · kayıtlar HM Ana Dosya'ya yazılır, ofis onaylar</div>
   </section>
 </main>
 
@@ -802,15 +802,30 @@ function paylasLinkleri(t, kime) {
     ep: 'mailto:' + ep + '?subject=' + encodeURIComponent('HM Korozyon Saha Tutanağı № ' + t.no) + '&body=' + m
   };
 }
+const PDF_VAR = !!(window.HMAndroid && window.HMAndroid.pdf);   // yeni APK: tutanak PDF olarak gönderilir
 function paylasBlok(t, acik) {
   const i = PAYLAS.push(t) - 1, l = paylasLinkleri(t, '');
-  return '<div class="paylas" id="pay' + i + '"' + (acik ? '' : ' style="display:none"') + '>' +
+  if (PDF_VAR) {
+    const ek = (t.link.indexOf('?') > -1 ? '&' : '?') + 'pdf=';
+    return '<div class="paylas" id="pay' + i + '"' + (acik ? '' : ' style="display:none"') + '>' +
+      '<div class="pBtnlar" style="grid-template-columns:2fr 1fr"><a class="pBtn wa" href="' + esc(t.link + ek + 'gonder') + '">📄 PDF olarak gönder</a>' +
+      '<a class="pBtn sms" href="' + esc(t.link + ek + 'ac') + '">PDF aç</a></div>' +
+      '<div class="ipucu" style="margin-top:6px">Karşı tarafa PDF dosyası gider. WhatsApp, e-posta, SMS… telefonun paylaş menüsünden seçersiniz.</div>' +
+      '<p style="margin:8px 0 0"><a href="#" class="baglanti" onclick="paylasLinkAc(' + i + '); return false">Link olarak gönder</a></p>' +
+      '<div id="plink' + i + '" style="display:none">' + linkBlok(i, l) + '</div></div>';
+  }
+  return '<div class="paylas" id="pay' + i + '"' + (acik ? '' : ' style="display:none"') + '>' + linkBlok(i, l) +
+    '<div class="ipucu" style="margin-top:6px">PDF olarak göndermek için HM Saha uygulamasının son sürümünü yükleyin.</div></div>';
+}
+function paylasLinkAc(i) { const el = $('plink' + i); if (el) el.style.display = el.style.display === 'none' ? '' : 'none'; }
+function linkBlok(i, l) {
+  return '' +
     '<input type="text" autocomplete="off" placeholder="Kime: telefon veya e-posta (boş bırakılabilir)" oninput="paylasGuncelle(' + i + ', this.value)">' +
     '<div class="pBtnlar"><a id="pwa' + i + '" class="pBtn wa" href="' + esc(l.wa) + '" target="_blank" rel="noopener">WhatsApp</a>' +
     '<a id="psms' + i + '" class="pBtn sms" href="' + esc(l.sms) + '">SMS</a>' +
     '<a id="pep' + i + '" class="pBtn ep" href="' + esc(l.ep) + '">E-posta</a></div>' +
     (navigator.share ? '<button class="btn2 kucuk tam" style="margin-top:6px" onclick="paylasDiger(' + i + ')">Diğer uygulamalar…</button>' : '') +
-    '<div class="ipucu" style="margin-top:6px">Kişiye tutanağın linki gider; açıp görebilir, yazdırabilir. Kime boşsa rehberden seçersiniz.</div></div>';
+    '<div class="ipucu" style="margin-top:6px">Kişiye tutanağın linki gider; açıp görebilir, yazdırabilir. Kime boşsa rehberden seçersiniz.</div>';
 }
 function paylasGuncelle(i, kime) {
   const l = paylasLinkleri(PAYLAS[i], kime);

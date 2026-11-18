@@ -95,7 +95,10 @@
 </head>
 <body>
 <div class="arac" id="arac">
+  <button id="geriBtn" style="display:none" onclick="history.length > 1 ? history.back() : (location.href = 'index.html')">‹ Uygulama</button>
   <span id="aracBaslik">HM Korozyon - Saha Tutanağı</span>
+  <button class="ana" id="pdfGonderBtn" style="display:none" onclick="pdfIste('gonder')">📄 PDF gönder</button>
+  <button id="pdfAcBtn" style="display:none" onclick="pdfIste('ac')">PDF aç</button>
   <button class="ana" id="yazdirBtn" onclick="window.print()">🖨 Yazdır / PDF</button>
   <a class="pb" id="gWa" target="_blank" rel="noopener" style="background:#1fa855">WhatsApp</a>
   <a class="pb" id="gSms" style="background:#3550c8">SMS</a>
@@ -116,8 +119,34 @@ function linkKopyala() {
   const u = location.href;
   if (navigator.clipboard) navigator.clipboard.writeText(u).then(() => bilgi('Link kopyalandı.'), () => bilgi(u)); else bilgi(u);
 }
-function bilgi(t) { $('aracBaslik').textContent = t; setTimeout(() => { $('aracBaslik').textContent = 'HM Korozyon - Saha Tutanağı'; }, 2500); }
-if (/HMSahaApp/.test(navigator.userAgent)) $('yazdirBtn').style.display = 'none';   // telefonda yazdırma yok: ofiste bilgisayardan
+let bilgiZaman = null;
+function bilgi(t, sure) {
+  $('aracBaslik').textContent = t; clearTimeout(bilgiZaman);
+  bilgiZaman = setTimeout(() => { $('aracBaslik').textContent = 'HM Korozyon - Saha Tutanağı'; }, sure || 2500);
+}
+const UYGULAMA = !!(window.HMAndroid && window.HMAndroid.pdf);   // HM Saha APK (PDF üretip paylaşabilen sürüm)
+if (/HMSahaApp/.test(navigator.userAgent)) $('yazdirBtn').style.display = 'none';   // telefonda yazdırma yok: PDF düğmeleri var
+if (UYGULAMA) ['pdfGonderBtn', 'pdfAcBtn', 'geriBtn'].forEach(id => { $(id).style.display = 'inline-block'; });
+let T = null;
+function ascii(s) {
+  return tire(s).replace(/ğ/g, 'g').replace(/Ğ/g, 'G').replace(/ü/g, 'u').replace(/Ü/g, 'U').replace(/ş/g, 's').replace(/Ş/g, 'S')
+    .replace(/ı/g, 'i').replace(/İ/g, 'I').replace(/ö/g, 'o').replace(/Ö/g, 'O').replace(/ç/g, 'c').replace(/Ç/g, 'C')
+    .replace(/[^A-Za-z0-9-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40);
+}
+/** Telefon uygulaması tutanağı A4 PDF'e çevirir; 'gonder' → paylaş menüsü (WhatsApp, e-posta, SMS…), 'ac' → PDF görüntüleyici */
+function pdfIste(islem) {
+  if (!T) return;
+  if (!UYGULAMA) { window.print(); return; }
+  const ad = 'HM_Tutanak_' + ascii(T.no) + (T.firma ? '_' + ascii(T.firma) : '') + '.pdf';
+  const konu = tire('HM Korozyon Saha Tutanağı № ' + T.no + (T.firma ? ' - ' + T.firma : ''));
+  const metin = tire('HM Korozyon - Saha Tutanağı № ' + T.no + (T.firma ? '\nFirma: ' + T.firma : '') +
+    '\nİş: ' + T.isNo + (T.isAd ? ' - ' + T.isAd : '') + '\nTarih: ' + T.bas + (T.bit !== T.bas ? ' - ' + T.bit : '') +
+    '\nDüzenleyen: ' + (T.duzenleyen && T.duzenleyen.ad || '') + '\nDoğrulama kodu: ' + T.kod);
+  bilgi('PDF hazırlanıyor…', 20000);
+  const s = $('sayfa'); s.style.transform = ''; s.style.marginLeft = ''; s.style.marginBottom = ''; boslukAyarla();
+  try { window.HMAndroid.pdf(ad, islem, konu, metin); } catch (e) { bilgi('PDF oluşturulamadı: ' + e.message); }
+}
+window.pdfSonuc = (ok, m) => { bilgi(ok ? 'PDF hazır.' : 'PDF oluşturulamadı: ' + m, 4000); olcekle(); };
 
 async function yukle() {
   const q = new URLSearchParams(location.search);
@@ -135,6 +164,7 @@ async function yukle() {
 }
 
 function ciz(t) {
+  T = t;
   document.title = tire('Tutanak ' + t.no + ' - ' + (t.firma || t.isNo));
   const unvan = tire(t.unvan || '');
   const ad = unvan.indexOf('HM KOROZYON') === 0 ? 'HM KOROZYON' : unvan.split(' ').slice(0, 2).join(' ');
@@ -233,12 +263,19 @@ function ciz(t) {
   $('gWa').href = 'https://wa.me/?text=' + msj;
   $('gSms').href = 'sms:?body=' + msj;
   $('gEp').href = 'mailto:?subject=' + encodeURIComponent('HM Korozyon Saha Tutanağı № ' + t.no) + '&body=' + msj;
-  ['gWa', 'gEp'].concat(/Android|iPhone|iPad/i.test(navigator.userAgent) ? ['gSms'] : []).forEach(id => { $(id).style.display = 'inline-block'; });
+  if (!UYGULAMA) ['gWa', 'gEp'].concat(/Android|iPhone|iPad/i.test(navigator.userAgent) ? ['gSms'] : []).forEach(id => { $(id).style.display = 'inline-block'; });
 
   $('durum').style.display = 'none';
   $('sayfa').style.display = 'block';
   boslukAyarla();
   olcekle();
+  // uygulamadan "PDF gönder / PDF aç" ile gelindiyse: resimler yüklenince PDF'i hemen hazırla
+  const istek = new URLSearchParams(location.search).get('pdf');
+  if (UYGULAMA && (istek === 'gonder' || istek === 'ac')) {
+    const resimler = Array.from(document.querySelectorAll('#sayfa img'));
+    Promise.all(resimler.map(r => r.complete ? 1 : new Promise(ok => { r.onload = r.onerror = ok; })))
+      .then(() => setTimeout(() => pdfIste(istek), 500));
+  }
 }
 /** Yazdırmada sabit üst/alt bölümlerin yüksekliği kadar her sayfada boşluk bırakılır (thead/tfoot her sayfada tekrar eder). */
 function boslukAyarla() {
