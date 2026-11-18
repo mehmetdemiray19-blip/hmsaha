@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.application'
+}
+
+// GitHub Actions bu değerleri ortam değişkeniyle verir (bkz. .github/workflows/apk.yml)
+def hmAdres = System.getenv('HM_URL') ?: 'https://example.github.io/hm-saha/'
+def surumNo = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as Integer
+def imzaDosyasi = System.getenv('HM_KEYSTORE_FILE')
+
+android {
+    namespace 'com.hm.saha'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.hm.saha'
+        minSdk 24
+        targetSdk 34
+        versionCode surumNo
+        versionName "1." + surumNo
+        buildConfigField 'String', 'HM_URL', "\"${hmAdres}\""
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        hm {
+            if (imzaDosyasi) {
+                storeFile file(imzaDosyasi)
+                storePassword System.getenv('HM_KEYSTORE_PASS')
+                keyAlias System.getenv('HM_KEY_ALIAS') ?: 'hmsaha'
+                keyPassword System.getenv('HM_KEYSTORE_PASS')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig imzaDosyasi ? signingConfigs.hm : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.13.1'
+}
