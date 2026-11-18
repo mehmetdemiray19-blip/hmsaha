@@ -24,8 +24,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - uses: android-actions/setup-android@v3
-
       - name: Sayfanın yedek kopyasını uygulamaya koy (internetsiz ilk açılış için)
         run: |
           mkdir -p android/app/src/main/assets/www
