@@ -91,6 +91,10 @@
   .tkayit input { width: 22px; height: 22px; flex: 0 0 22px; margin-top: 2px; }
   .tkayit small { color: var(--gri); }
   .baglanti { color: var(--lac); font-weight: 600; text-decoration: underline; }
+  .paylas { margin-top: 10px; }
+  .pBtnlar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+  .pBtn { display: block; text-align: center; padding: 13px 4px; border-radius: 12px; font-weight: 700; color: #fff !important; text-decoration: none; font-size: 15px; }
+  .pBtn.wa { background: #1fa855; } .pBtn.sms { background: var(--lac); } .pBtn.ep { background: var(--turuncuM); }
   .surum { text-align: center; font-size: 12px; color: var(--gri); margin-top: 16px; }
 </style>
 </head>
@@ -268,6 +272,9 @@
             <button data-t="KK" class="sec" onclick="this.classList.toggle('sec')">Katodik koruma</button>
             <button data-t="TOP" onclick="this.classList.toggle('sec')">Topraklama</button>
           </div>
+          <label class="satir" style="color:var(--yazi);margin-top:12px">
+            <input id="tOlcum" type="checkbox" style="width:22px;height:22px;flex:0 0 22px" onchange="tToplamCiz()"> Ölçüm değerlerini tutanağa yaz
+          </label>
           <label>Firma</label><input id="tFirma" placeholder="ör. OMC İnşaat">
           <div class="satir"><div style="flex:1"><label>İlçe</label><input id="tIlce"></div><div style="flex:1"><label>Mahalle</label><input id="tMahalle"></div></div>
           <div class="satir"><div style="flex:1"><label>Cadde</label><input id="tCadde"></div><div style="flex:1"><label>Sokak</label><input id="tSokak"></div></div>
@@ -294,7 +301,7 @@
         <div id="kayitListe" class="ipucu">Yükleniyor…</div>
       </div>
     </div>
-    <div class="surum">HM Saha v1.3 · kayıtlar HM Ana Dosya'ya yazılır, ofis onaylar</div>
+    <div class="surum">HM Saha v1.6 · kayıtlar HM Ana Dosya'ya yazılır, ofis onaylar</div>
   </section>
 </main>
 
@@ -770,6 +777,48 @@ window.addEventListener('online', () => kuyruguIsle());
 
 /* ===================== tutanak ===================== */
 let T_KAYIT = [];
+/* --- tutanağı WhatsApp / SMS / e-posta ile gönderme (kişiye tutanağın linki gider) --- */
+let PAYLAS = [];
+function tutanakMesaji(t) {
+  return ('HM Korozyon - Saha Tutanağı № ' + t.no + '\n' +
+    (t.firma ? 'Firma: ' + t.firma + '\n' : '') + (t.is ? 'İş: ' + t.is + '\n' : '') + (t.tarih ? 'Tarih: ' + t.tarih + '\n' : '') +
+    (t.duzenleyen ? 'Düzenleyen: ' + t.duzenleyen + '\n' : '') + 'Tutanağı görmek / yazdırmak için: ' + t.link).replace(/[\u2012-\u2015]/g, '-');
+}
+function telUluslar(v) {
+  let d = String(v || '').replace(/\D/g, '');
+  if (d.indexOf('00') === 0) d = d.slice(2);
+  if (d.length === 11 && d.charAt(0) === '0') d = '9' + d;          // 0532… → 90532…
+  else if (d.length === 10 && d.charAt(0) === '5') d = '90' + d;    // 532…  → 90532…
+  return d;
+}
+function paylasLinkleri(t, kime) {
+  const m = encodeURIComponent(tutanakMesaji(t));
+  const k = String(kime || '').trim();
+  const ep = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(k) ? k : '';
+  const tel = ep ? '' : telUluslar(k);
+  return {
+    wa: 'https://wa.me/' + tel + '?text=' + m,
+    sms: 'sms:' + (tel ? '+' + tel : '') + '?body=' + m,
+    ep: 'mailto:' + ep + '?subject=' + encodeURIComponent('HM Korozyon Saha Tutanağı № ' + t.no) + '&body=' + m
+  };
+}
+function paylasBlok(t, acik) {
+  const i = PAYLAS.push(t) - 1, l = paylasLinkleri(t, '');
+  return '<div class="paylas" id="pay' + i + '"' + (acik ? '' : ' style="display:none"') + '>' +
+    '<input type="text" autocomplete="off" placeholder="Kime: telefon veya e-posta (boş bırakılabilir)" oninput="paylasGuncelle(' + i + ', this.value)">' +
+    '<div class="pBtnlar"><a id="pwa' + i + '" class="pBtn wa" href="' + esc(l.wa) + '" target="_blank" rel="noopener">WhatsApp</a>' +
+    '<a id="psms' + i + '" class="pBtn sms" href="' + esc(l.sms) + '">SMS</a>' +
+    '<a id="pep' + i + '" class="pBtn ep" href="' + esc(l.ep) + '">E-posta</a></div>' +
+    (navigator.share ? '<button class="btn2 kucuk tam" style="margin-top:6px" onclick="paylasDiger(' + i + ')">Diğer uygulamalar…</button>' : '') +
+    '<div class="ipucu" style="margin-top:6px">Kişiye tutanağın linki gider; açıp görebilir, yazdırabilir. Kime boşsa rehberden seçersiniz.</div></div>';
+}
+function paylasGuncelle(i, kime) {
+  const l = paylasLinkleri(PAYLAS[i], kime);
+  $('pwa' + i).href = l.wa; $('psms' + i).href = l.sms; $('pep' + i).href = l.ep;
+}
+function paylasAc(i) { const el = $('pay' + i); if (el) el.style.display = el.style.display === 'none' ? '' : 'none'; }
+function paylasDiger(i) { const t = PAYLAS[i]; navigator.share({ title: 'Tutanak ' + t.no, text: tutanakMesaji(t) }).catch(() => {}); }
+function trTarih(v) { const p = String(v || '').split('-'); return p.length === 3 ? p[2] + '.' + p[1] + '.' + p[0] : String(v || ''); }
 function tutanakAc() {
   if (!$('tBas').value) $('tBas').value = $('tarih').value || bugunStr();
   if (!$('tBit').value) $('tBit').value = $('tBas').value;
@@ -795,9 +844,10 @@ async function tutanakGetir() {
     }
     $('tKayitSay').textContent = '(' + T_KAYIT.length + ')';
     $('tKayitlar').innerHTML = T_KAYIT.map((k, i) =>
-      '<label class="tkayit"><input type="checkbox" checked data-i="' + i + '"><span>' + esc(tKayitMetni(k)) +
+      '<label class="tkayit"><input type="checkbox" checked data-i="' + i + '" onchange="tToplamCiz()"><span>' + esc(tKayitMetni(k)) +
       '<br><small>' + esc(k.tarih) + (k.tutanak ? ' · zaten tutanakta: ' + esc(k.tutanak) : '') + '</small></span></label>').join('') +
-      '<p class="ipucu">Tutanağa girmeyecek kaydın işaretini kaldırın.</p>';
+      '<p class="ipucu">Tutanağa girmeyecek kaydın işaretini kaldırın.</p><div id="tToplam"></div>';
+    tToplamCiz();
     const doldur = (id, v) => { if (!$(id).value && v) $(id).value = v; };
     doldur('tFirma', r.oneri.firma); doldur('tAdres', r.oneri.adres); doldur('tGps', r.oneri.gps);
     goster('tAlanlar', true);
@@ -805,6 +855,22 @@ async function tutanakGetir() {
     if (/^YETKI/.test(hataMetni(e))) { cikis(true); return; }
     $('tKayitlar').innerHTML = '<p class="ipucu">Kayıtlar alınamadı: ' + esc(hataMetni(e)) + '</p>';
   }
+}
+/** Önizleme: tutanakta görünecek hâli – aynı cins kalemler toplanmış */
+function tToplamCiz() {
+  const secili = Array.from(document.querySelectorAll('#tKayitlar input[type=checkbox]')).filter(c => c.checked).map(c => T_KAYIT[Number(c.dataset.i)]);
+  const m = {}, sira = [];
+  secili.filter(k => k.tur === 'Malzeme kullanımı' || k.tur === 'Yapılan iş').forEach(k => {
+    const a = k.tur + '|' + (k.kod || k.tanim) + '|' + k.birim;
+    if (!m[a]) { m[a] = { tur: k.tur, tanim: k.tanim, birim: k.birim, miktar: 0 }; sira.push(a); }
+    m[a].miktar = Math.round((m[a].miktar + (Number(k.miktar) || 0)) * 1000) / 1000;
+  });
+  const olc = secili.filter(k => k.tur === 'Ölçüm').length;
+  $('tToplam').innerHTML = sira.length || olc ? '<h2 style="margin-top:14px">Tutanakta görünecek (toplanmış)</h2>' +
+    sira.map(a => { const x = m[a]; return '<div class="tkayit" style="justify-content:space-between"><span>' + esc((x.tur === 'Yapılan iş' ? 'İş: ' : '') + x.tanim) +
+      '</span><b style="white-space:nowrap">' + esc(String(x.miktar).replace('.', ',') + ' ' + birimAdi(x.birim)) + '</b></div>'; }).join('') +
+    (olc ? '<p class="ipucu">' + ($('tOlcum').checked ? '+ ' + olc + ' ölçüm değeri tutanağa ayrı ayrı yazılacak (ölçümler toplanmaz).'
+                                                    : olc + ' ölçüm değeri var; tutanağa yazılmayacak (yazmak için "Ölçüm değerlerini tutanağa yaz"ı işaretleyin).') + '</p>' : '') : '';
 }
 async function tutanakOlustur() {
   const isNo = $('isSec').value;
@@ -818,13 +884,17 @@ async function tutanakOlustur() {
   if (!(await onayIste('Tutanak oluşturulsun mu? Numara verilir ve ofise düşer.'))) return;
   try {
     const r = await sunucu('appTutanakOlustur', TOKEN, {
-      isNo, bas: $('tBas').value, bit: $('tBit').value, turler, haric,
+      isNo, bas: $('tBas').value, bit: $('tBit').value, turler, haric, olcumYaz: $('tOlcum').checked,
       firma: $('tFirma').value, ilce: $('tIlce').value, mahalle: $('tMahalle').value, cadde: $('tCadde').value,
       sokak: $('tSokak').value, binaNo: $('tBina').value, gps: $('tGps').value, adres: $('tAdres').value,
       baslik: $('tBaslik').value, aciklama: $('tAciklama').value });
     $('tSonuc').innerHTML = '<h2>✓ Tutanak № ' + esc(r.no) + ' hazır</h2><p>Doğrulama kodu: <b>' + esc(r.kod) + '</b> · ' + esc(r.kayit) +
       ' kayıt. Ofis Tutanaklar sayfasından görür ve yazdırır.</p>' +
-      (r.link ? '<a class="btn" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box" href="' + esc(r.link) + '" target="_blank" rel="noopener">Tutanağı aç</a>' : '');
+      (r.link ? '<a class="btn" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box;padding:14px;border-radius:12px" href="' + esc(r.link) + '" target="_blank" rel="noopener">Tutanağı aç</a>' +
+        '<h2 style="margin-top:16px">Tutanağı gönder</h2>' +
+        paylasBlok({ no: r.no, link: r.link, firma: $('tFirma').value.trim(), duzenleyen: VERI.ad,
+          is: isNo + (($('isSec').selectedOptions[0] || {}).textContent ? ' - ' + $('isSec').selectedOptions[0].textContent.split(' · ').slice(1).join(' · ') : ''),
+          tarih: $('tBas').value === $('tBit').value ? trTarih($('tBas').value) : trTarih($('tBas').value) + ' - ' + trTarih($('tBit').value) }, true) : '');
     goster('tSonuc', true); goster('tutanakForm', false);
     ['tBaslik', 'tAciklama'].forEach(id => { $(id).value = ''; });
     tutanaklarim();
@@ -840,7 +910,9 @@ async function tutanaklarim() {
     $('tListe').innerHTML = r.length ? r.map(t => '<div class="kayit"><div class="satir" style="justify-content:space-between"><b>№ ' + esc(t.no) + '</b>' +
       '<span class="rozet' + (t.durum === 'İMZALANDI' ? ' onay' : (t.durum === 'İPTAL' ? ' red' : '')) + '">' + esc(t.durum || 'BEKLİYOR') + '</span></div>' +
       '<div>' + esc(t.tarih + ' · ' + t.is + (t.firma ? ' · ' + t.firma : '')) + '</div>' +
-      (t.link ? '<a class="baglanti" href="' + esc(t.link) + '" target="_blank" rel="noopener">Tutanağı aç</a>' : '') + '</div>').join('')
+      (t.link ? '<div class="satir" style="justify-content:space-between;margin-top:6px"><a class="baglanti" href="' + esc(t.link) + '" target="_blank" rel="noopener">Tutanağı aç</a>' +
+        '<button class="btn2 kucuk" onclick="paylasAc(' + PAYLAS.length + ')">📤 Gönder</button></div>' +
+        paylasBlok({ no: t.no, link: t.link, firma: t.firma, is: t.is, tarih: String(t.tarih || '').split(' ')[0], duzenleyen: VERI.ad }, false) : '') + '</div>').join('')
       : 'Henüz tutanağınız yok.';
   } catch (e) {
     if (/^YETKI/.test(hataMetni(e))) { cikis(true); return; }

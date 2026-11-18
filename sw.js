@@ -1,5 +1,5 @@
 // HM Saha – çevrimdışı açılış için önbellek (uygulama dosyaları; kayıtlar hiçbir zaman önbelleğe alınmaz)
-const SURUM = 'hm-saha-v4';
+const SURUM = 'hm-saha-v7';
 const DOSYALAR = ['./', './index.html', './ayar.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/favicon.png', './filigran.png', './tutanak.html'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(SURUM).then(c => c.addAll(DOSYALAR))); self.skipWaiting(); });
